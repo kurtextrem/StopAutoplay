@@ -55,7 +55,7 @@
 					} else {
 						this.stop()
 					}
-				}.bind(this), 8.5)
+				}.bind(this), 9)
 		},
 
 		_exec: function(which) {
@@ -92,5 +92,4 @@
 }(window);
 
 // start
-if (location.href.indexOf('watch?') !== -1)
-	new StopAutoplay()
+new StopAutoplay()
