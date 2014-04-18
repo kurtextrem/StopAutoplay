@@ -70,15 +70,7 @@
 			this._exec('play')
 		},
 
-		handleVisibilityChange: function() {
-			window.setTimeout(function() {
-				if (!document.hidden)
-					this.play()
-			}.bind(this), 60)
-		},
-
 		bind: function() {
-			window.addEventListener('focus', this.handleVisibilityChange.bind(this), false)
 			window.addEventListener('popstate', this.updatePlayer.bind(this), false)
 		}
 	}
