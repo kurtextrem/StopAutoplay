@@ -37,25 +37,20 @@
 
 		stop: function() {
 			this.pause()
-			if  (this.count < 8)
+			if  (this.count < 8) {
 				window.setTimeout(function() {
 					if (document.hasFocus()) return
 					var last = this.getTime()
-					if (last !== undefined) {
-						if (this.last !== last) {
-							this.last = last
-							this.stop()
-						} else {
-							this.count++
-							this.stop()
-							window.setTimeout(function() {
-								document.title = document.title.replace('▶ ', '')
-							}, 1000)
-						}
+					if (last === undefined)
+						return this.stop()
+					if (this.last !== last) {
+						this.last = last
 					} else {
-						this.stop()
+						this.count++
 					}
-				}.bind(this), 9)
+					this.stop()
+				}.bind(this), 4)
+			}
 		},
 
 		_exec: function(which) {
@@ -92,4 +87,5 @@
 }(window);
 
 // start
-new StopAutoplay()
+if (location.href.indexOf('watch?') !== -1)
+	new StopAutoplay()

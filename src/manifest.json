@@ -12,7 +12,7 @@
 
 	"author": "Jacob Groß (kurtextrem)",
 	"content_scripts": [{
-		"matches": ["*://www.youtube.com/watch", "*://youtube.com/watch"],
+		"matches": ["http://www.youtube.com/*", "http://youtube.com/*", "https://www.youtube.com/*", "https://youtube.com/*"],
 		"js": ["inject.js"],
 		"run_at": "document_idle"
 	}]
