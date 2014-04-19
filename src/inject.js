@@ -1,9 +1,7 @@
 +function(window) {
 	'use strict';
 	var StopAutoplay = function() {
-		this.updatePlayer()
-		if (!document.hasFocus())
-			this.stop()
+		this.init()
 		this.bind()
 	}
 
@@ -14,6 +12,7 @@
 		html5: false,
 		last: -1,
 		count: 0,
+		_focus: null,
 
 		html5action: {
 			play: 'play',
@@ -24,6 +23,14 @@
 			play: 'playVideo',
 			pause: 'pauseVideo',
 			time: 'getCurrentTime'
+		},
+
+		init: function() {
+			if (!this.isWatchPage()) return
+			this.updatePlayer()
+			if (!document.hasFocus())
+				this.stop()
+			this.bindPlayer()
 		},
 
 		updatePlayer: function() {
@@ -71,15 +78,24 @@
 		},
 
 		handleVisibilityChange: function() {
+			if (!this.isWatchPage()) return
 			window.setTimeout(function() {
 				if (!document.hidden)
 					this.play()
 			}.bind(this), 60)
 		},
 
-		bind: function() {
-			window.addEventListener('focus', this.handleVisibilityChange.bind(this), false)
-			window.addEventListener('popstate', this.updatePlayer.bind(this), false)
+		bindPlayer: function() { // When player is there
+			if (!this._focus)
+				this._focus = window.addEventListener('focus', this.handleVisibilityChange.bind(this), false)
+		},
+
+		bind: function() { // When player isn't there
+			window.addEventListener('popstate', this.init.bind(this), false)
+		},
+
+		isWatchPage: function() {
+			return location.href.indexOf('watch?') !== -1
 		}
 	}
 
@@ -87,5 +103,4 @@
 }(window);
 
 // start
-if (location.href.indexOf('watch?') !== -1)
-	new StopAutoplay()
+new StopAutoplay()
