@@ -91,11 +91,16 @@
 		},
 
 		bind: function() { // When player isn't there
-			window.addEventListener('popstate', this.init.bind(this), false)
+			window.addEventListener('popstate', this.init.bind(this), false) // user back / for navigation
+			document.body.addEventListener('transitionend', function(event) { // after ajax navigation, only works while tab is active: https://stackoverflow.com/questions/18397962/chrome-extension-is-not-loading-on-browser-navigation-at-youtube/18398921#18398921
+			    	if (event.propertyName === 'width' && event.target.id === 'progress') {
+			        		this.init()
+			    	}
+			}.bind(this), true)
 		},
 
 		isWatchPage: function() {
-			return location.href.indexOf('watch?') !== -1
+			return location.pathname === '/watch'
 		}
 	}
 
