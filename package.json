@@ -1,18 +1,20 @@
 {
-  "name": "StopAutoplay",
-  "author": "Jacob Groß (kurtextrem)",
-  "licenseLine": "",
-  "description": "Test",
-  "version": "0.0.1",
   "devDependencies": {
-    "grunt": "~0.4.2",
-    "grunt-contrib-clean": "~0.5.0",
-    "grunt-contrib-copy": "~0.5.0",
-    "grunt-contrib-uglify": "~0.2.7",
-    "grunt-sed": "~0.1.1",
-    "grunt-jscs-checker": "~0.3.0",
-    "load-grunt-tasks": "~0.2.1",
-    "grunt-zip": "~0.12.0",
-    "grunt-simple-crx": "~0.1.0"
+    "browser-sync": "^0.9.1",
+    "gulp": "^3.6.0",
+    "gulp-cache": "^0.1.1",
+    "gulp-flatten": "^0.0.2",
+    "gulp-load-plugins": "^0.5.0",
+    "gulp-size": "^0.4.0",
+    "gulp-uglifyjs": "^0.3.0",
+    "opn": "^0.1.1",
+    "rimraf": "^2.2.8",
+    "run-sequence": "^0.3.6",
+    "gulp-replace": "^0.3.0",
+    "gulp-jsonminify": "^0.0.1",
+    "gulp-zip": "^0.4.0"
+  },
+  "engines": {
+    "node": ">=0.10.0"
   }
 }
