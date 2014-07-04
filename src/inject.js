@@ -6,7 +6,6 @@
 	var StopAutoplay = function () {
 		this.player = null
 		this.html5 = false
-		this.last = -1
 		this.count = 0
 
 		this.init()
@@ -24,40 +23,29 @@
 
 	StopAutoplay.prototype.updatePlayer = function () {
 		this.player = document.getElementById('movie_player')
-		if (this.player.className.indexOf('html5-video-player') !== -1) {
+		if (this.player.classList.contains('html5-video-player')) { // speediest way
 			this.html5 = true
-			this.player = document.getElementsByTagName('video')[0]
-			this.player.getCurrentTimeVideo = function () {
-				return this.currentTime
-			}
+			this.player = this.player.getElementsByTagName('video')[0] // without an id the fastest method
 		}
 	}
 
 	StopAutoplay.prototype.stop = function () {
 		this.pause()
-		if (this.count < 8) {
+		if (this.count < 9) {
 			window.setTimeout(function () {
 				if (document.hasFocus()) return
-				var last = this.getTime()
-				if (last === undefined)
-					return this.stop()
-				if (this.last !== last) {
-					this.last = last
-				} else {
-					this.count++
-				}
+				++this.count
 				this.stop()
 			}.bind(this), 4)
 		}
 	}
 
+	// html5: pause(), play(), getCurrentTime
+	// flash: pauseVideo(), playVideo(), getCurrentTime()
 	StopAutoplay.prototype._exec = function (which) {
 		var action = this.html5 ? which : which + 'Video'
-		return this.player[action] !== undefined ? this.player[action]() : 0
-	}
-
-	StopAutoplay.prototype.getTime = function () {
-		return this._exec('getCurrentTime')
+		if (this.player[action] !== undefined)
+			this.player[action]()
 	}
 
 	StopAutoplay.prototype.pause = function () {
