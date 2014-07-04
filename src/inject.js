@@ -1,7 +1,7 @@
 +function (window) {
 	'use strict';
 
-	var document = window.document, location = document.location
+	var document = window.document, location = window.location
 
 	var StopAutoplay = function () {
 		this.player = null
@@ -52,7 +52,7 @@
 	}
 
 	StopAutoplay.prototype._exec = function (which) {
-		var action = this.html5 ? which + 'Video' : which
+		var action = this.html5 ? which : which + 'Video'
 		return this.player[action] !== undefined ? this.player[action]() : 0
 	}
 
@@ -84,6 +84,7 @@
 				this.init()
 			}
 		}.bind(this), false)
+		// handle blur / focus + title change => transition in background?
 	}
 
 	StopAutoplay.prototype.isWatchPage = function () {
