@@ -5,7 +5,7 @@
 
 	var StopAutoplay = function () {
 		this.player = null
-		this.html5 = false
+		this.flash = false
 		this.count = 0
 
 		this.init()
@@ -22,16 +22,16 @@
 	}
 
 	StopAutoplay.prototype.updatePlayer = function () {
-		this.player = document.getElementById('movie_player')
-		if (this.player.classList.contains('html5-video-player')) { // speediest way
-			this.html5 = true
-			this.player = this.player.getElementsByTagName('video')[0] // without an id the fastest method
+		this.player = this.player.getElementsByTagName('video')[0] // without an id the fastest method
+		if (!this.player) {
+			this.flash = true
+			this.player = document.getElementById('movie_player')
 		}
 	}
 
 	StopAutoplay.prototype.stop = function () {
 		this.pause()
-		if (this.count < 9) {
+		if (this.count < 10) {
 			window.setTimeout(function () {
 				if (document.hasFocus()) return
 				++this.count
@@ -43,7 +43,7 @@
 	// html5: pause(), play(), getCurrentTime
 	// flash: pauseVideo(), playVideo(), getCurrentTime()
 	StopAutoplay.prototype._exec = function (which) {
-		var action = this.html5 ? which : which + 'Video'
+		var action = this.flash ? which + 'Video' : which
 		if (this.player[action] !== undefined)
 			this.player[action]()
 	}
@@ -76,7 +76,7 @@
 	}
 
 	StopAutoplay.prototype.isWatchPage = function () {
-		return location.pathname === '/watch'
+		return location.pathname === '/watch' && location.search.indexOf('list=') === -1 // disabling / enabling is in the playlist player
 	}
 
 	// start
