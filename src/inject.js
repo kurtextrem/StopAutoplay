@@ -22,7 +22,7 @@
 	}
 
 	StopAutoplay.prototype.updatePlayer = function () {
-		this.player = this.player.getElementsByTagName('video')[0] // without an id the fastest method
+		this.player = document.getElementsByTagName('video')[0] // without an id the fastest method
 		if (!this.player) {
 			this.flash = true
 			this.player = document.getElementById('movie_player')
