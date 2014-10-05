@@ -76,7 +76,7 @@
 	}
 
 	StopAutoplay.prototype.isWatchPage = function () {
-		return location.pathname === '/watch' && location.search.indexOf('list=') === -1 // disabling / enabling is in the playlist player
+		return (location.pathname === '/watch' || location.pathname.indexOf('/user/') !== -1) && location.search.indexOf('list=') === -1 // disabling / enabling is in the playlist player
 	}
 
 	// start
