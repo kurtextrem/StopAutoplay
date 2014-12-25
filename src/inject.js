@@ -7,6 +7,7 @@
 	var StopAutoplay = function () {
 		this.player = null
 		this.flash = false
+		this.playerCount = 0
 		this.count = 0
 
 		this.init()
@@ -16,14 +17,14 @@
 	//StopAutoplay.VERSION = '1.8'
 
 	StopAutoplay.prototype.init = function () {
-		if (!this.isWatchPage()) return
+		if (!this.isWatchPage() && !this.isChannelPage()) return
 		this.updatePlayer()
 		if (!document.hasFocus())
 			this.stop()
 	}
 
 	StopAutoplay.prototype.updatePlayer = function () {
-		this.player = document.getElementsByTagName('video')[0] // without an id the fastest method
+		this.player = document.getElementsByTagName('video')[this.playerCount] // without an id the fastest method
 		if (!this.player) {
 			this.flash = true
 			this.player = document.getElementById('movie_player')
@@ -32,7 +33,7 @@
 
 	StopAutoplay.prototype.stop = function () {
 		this.pause()
-		if (this.count < 10) {
+		if (this.count < 14) {
 			window.setTimeout(function () {
 				if (document.hasFocus()) return;
 				++this.count
@@ -58,7 +59,6 @@
 	}
 
 	StopAutoplay.prototype.handleVisibilityChange = function () {
-		if (!this.isWatchPage()) return
 		window.setTimeout(function () {
 			if (!document.hidden)
 				this.play()
@@ -67,11 +67,36 @@
 
 	StopAutoplay.prototype.bind = function () {
 		window.addEventListener('focus', this.handleVisibilityChange.bind(this), false) // extended version: automatic playback
-		new MutationObserver(this.init.bind(this)).observe(document.body, { attributes: true })
+		new MutationObserver(function (mutations) { // AJAX: non player page -> player page or player page -> profile page w/ player
+			mutations.forEach(function (mutation) {
+				for (var i = 0; i < mutation.addedNodes.length; i++) {
+					if (mutation.addedNodes[i].nodeName === 'VIDEO' || mutation.addedNodes[i].nodeName === 'EMBED') {
+						this.player = null
+						this.flash = false
+						this.playerCount = 0
+						this.count = 0
+
+						return this.init()
+					}
+				}
+			}.bind(this))
+		}.bind(this)).observe(document.body, { childList: true, subtree: true })
+		new MutationObserver(function (mutations) { // AJAX: player -> player
+			if (mutations[0].attributeName === 'data-youtube-id')
+				this.init()
+		}.bind(this)).observe(this.player, { attributes: true })
 	}
 
 	StopAutoplay.prototype.isWatchPage = function () {
-		return (location.pathname === '/watch' && location.search.indexOf('list=') === -1) || (location.pathname.indexOf('/channel/') !== -1 || location.pathname.indexOf('/user/') !== -1) // Playlist or channel page
+		return location.pathname === '/watch' && location.search.indexOf('list=') === -1 // Playlist
+	}
+
+	StopAutoplay.prototype.isChannelPage = function () {
+		if (location.pathname.indexOf('/channel/') === -1 && location.pathname.indexOf('/user/') === -1) return false // Channel page
+		if (this.playerCount) return true
+		this.playerCount = 1
+		window.setTimeout(this.init.bind(this), 1000)
+		return false
 	}
 
 	// start
