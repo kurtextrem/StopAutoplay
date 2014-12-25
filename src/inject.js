@@ -82,8 +82,10 @@
 			}.bind(this))
 		}.bind(this)).observe(document.body, { childList: true, subtree: true })
 		new MutationObserver(function (mutations) { // AJAX: player -> player
-			if (this.player.dataset.youtubeId !== mutations[0].oldValue) // mutation event fired even though same value
+			if (this.player.dataset.youtubeId !== mutations[0].oldValue) { // mutation event fired even though same value
+				this.count = 0
 				this.init()
+			}
 		}.bind(this)).observe(this.player, { attributes: true, attributeFilter: ['data-youtube-id'], attributeOldValue: true })
 	}
 
