@@ -82,9 +82,9 @@
 			}.bind(this))
 		}.bind(this)).observe(document.body, { childList: true, subtree: true })
 		new MutationObserver(function (mutations) { // AJAX: player -> player
-			if (mutations[0].attributeName === 'data-youtube-id')
+			if (this.player.dataset.youtubeId !== mutations[0].oldValue) // mutation event fired even though same value
 				this.init()
-		}.bind(this)).observe(this.player, { attributes: true })
+		}.bind(this)).observe(this.player, { attributes: true, attributeFilter: ['data-youtube-id'], attributeOldValue: true })
 	}
 
 	StopAutoplay.prototype.isWatchPage = function () {
