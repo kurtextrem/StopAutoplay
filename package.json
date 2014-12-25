@@ -1,20 +1,23 @@
 {
-  "devDependencies": {
-    "browser-sync": "^0.9.1",
-    "gulp": "^3.6.0",
-    "gulp-cache": "^0.1.1",
-    "gulp-flatten": "^0.0.2",
-    "gulp-load-plugins": "^0.5.0",
-    "gulp-size": "^0.4.0",
-    "gulp-uglifyjs": "^0.3.0",
-    "opn": "^0.1.1",
-    "rimraf": "^2.2.8",
-    "run-sequence": "^0.3.6",
-    "gulp-replace": "^0.3.0",
-    "gulp-jsonminify": "^0.0.1",
-    "gulp-zip": "^0.4.0"
-  },
-  "engines": {
-    "node": ">=0.10.0"
-  }
+	"devDependencies": {
+		"uglify-js": "latest",
+		"rimraf": "latest",
+		"replace": "latest",
+		"json-minify": "latest",
+		"zip": "^0.4.0"
+	},
+	"scripts": {
+			"clean": "rimraf dist/*",
+
+			"js": "uglifyjs src/inject.js > dist/inject.js",
+			"json": "json-minify src/manifest.json > dist/manifest.json",
+
+			"build:replace": "replaceJS '\"use strict\";' '' ./dist -r  --preview",
+
+			"copy": "",
+
+			"build": "npm run clean & npm run js & npm run json & npm run copy",
+			"postjs": "npm run build:replace",
+			"postbuild": "npm run zip"
+	}
 }
