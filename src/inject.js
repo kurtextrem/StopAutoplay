@@ -71,6 +71,7 @@
 			mutations.forEach(function (mutation) {
 				for (var i = 0; i < mutation.addedNodes.length; i++) {
 					if (mutation.addedNodes[i].nodeName === 'VIDEO' || mutation.addedNodes[i].nodeName === 'EMBED') {
+						console.log('channel')
 						this.player = null
 						this.flash = false
 						this.playerCount = 0
@@ -82,7 +83,8 @@
 			}.bind(this))
 		}.bind(this)).observe(document.body, { childList: true, subtree: true })
 		new MutationObserver(function (mutations) { // AJAX: player -> player
-			if (this.player.dataset.youtubeId !== mutations[0].oldValue) { // mutation event fired even though same value
+			if (this.player && this.player.dataset.youtubeId !== mutations[0].oldValue) { // mutation event fired even though same value
+				console.log('player')
 				this.count = 0
 				this.init()
 			}
