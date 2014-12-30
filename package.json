@@ -2,22 +2,21 @@
 	"devDependencies": {
 		"uglify-js": "latest",
 		"rimraf": "latest",
-		"replace": "latest",
 		"json-minify": "latest",
-		"zip": "^0.4.0"
+		"shelljs": "latest",
+		"zip-dir": "latest"
 	},
 	"scripts": {
-			"clean": "rimraf dist/*",
+		"clean": "rimraf dist && mkdir dist",
 
-			"js": "uglifyjs src/inject.js > dist/inject.js",
-			"json": "json-minify src/manifest.json > dist/manifest.json",
+		"js": "uglifyjs src/inject.js > dist/inject.min.js",
+		"json": "json-minify src/manifest.json > dist/manifest.json",
 
-			"build:replace": "replaceJS '\"use strict\";' '' ./dist -r  --preview",
+		"copy": "node build.js copyImg",
 
-			"copy": "",
-
-			"build": "npm run clean & npm run js & npm run json & npm run copy",
-			"postjs": "npm run build:replace",
-			"postbuild": "npm run zip"
+		"build": "npm run clean & npm run js & npm run json & npm run copy",
+		"postjs": "node build.js replaceJS",
+		"postjson": "node build.js replaceJSON",
+		"postbuild": "node build.js buildZip"
 	}
 }
