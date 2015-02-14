@@ -5,10 +5,14 @@
 		location = window.location
 
 	var StopAutoplay = function () {
+		/** @type {Object}	Contains the current video player */
 		this.player = null
+		/** @type {Boolean}	Whether the page uses the flash player or not (rarely used) */
 		this.flash = false
-		this.playerCount = 0
+		/** @type {Number} 	Counter in the stop loop */
 		this.count = 0
+		/** @type {Number}	Needed because there can be two 'video' elements on the page  */
+		this.playerCount = 0
 
 		this.init()
 		this.bind()
@@ -24,8 +28,11 @@
 	}
 
 	StopAutoplay.prototype.updatePlayer = function () {
+		console.log('update player')
+		this.flash = false
 		this.player = document.getElementsByTagName('video')[this.playerCount] // without an id the fastest method
 		if (!this.player) {
+			console.log('flash')
 			this.flash = true
 			this.player = document.getElementById('movie_player')
 		}
@@ -68,30 +75,13 @@
 	StopAutoplay.prototype.bind = function () {
 		window.addEventListener('focus', this.handleVisibilityChange.bind(this), false) // extended version: automatic playback
 
-		new MutationObserver(function (mutations) { // AJAX: non player page -> player page or player page -> profile page w/ player
-			mutations.forEach(function (mutation) {
-				for (var i = 0; i < mutation.addedNodes.length; i++) {
-					if (mutation.addedNodes[i].nodeName === 'VIDEO' || mutation.addedNodes[i].nodeName === 'EMBED') {
-						console.log('channel')
-						this.player = null
-						this.flash = false
-						this.playerCount = 1
-						this.count = 0
-
-						return this.init()
-					}
-				}
-			}.bind(this))
-		}.bind(this)).observe(document.body, { childList: true, subtree: true })
-
-		if (this.player)
-			new MutationObserver(function (mutations) { // AJAX: player -> player
-				if (this.player && this.player.dataset.youtubeId !== mutations[0].oldValue) { // mutation event fired even though same value
-					console.log('player')
-					this.count = 0
-					this.init()
-				}
-			}.bind(this)).observe(this.player, { attributes: true, attributeFilter: ['data-youtube-id'], attributeOldValue: true })
+		window.addEventListener('spfdone', function (e) {
+			console.log('spfdone', e.detail.url)
+			this.player = null
+			this.count = 0
+			this.playerCount = 0
+			this.init()
+		}.bind(this))
 	}
 
 	StopAutoplay.prototype.isWatchPage = function () {
@@ -99,11 +89,12 @@
 	}
 
 	StopAutoplay.prototype.isChannelPage = function () {
-		if (location.pathname.indexOf('/channel/') === -1 && location.pathname.indexOf('/user/') === -1) return false // Channel page
+		if (location.pathname.indexOf('/channel/') === -1 && location.pathname.indexOf('/user/') === -1) return false
 		if (this.playerCount) return true
 
+		this.count = 0
 		this.playerCount = 1
-		window.setTimeout(this.init.bind(this), 1000)
+		window.setTimeout(this.init.bind(this), 2250)
 
 		return false
 	}
