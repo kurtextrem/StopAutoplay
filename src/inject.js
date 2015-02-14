@@ -67,6 +67,7 @@
 
 	StopAutoplay.prototype.bind = function () {
 		window.addEventListener('focus', this.handleVisibilityChange.bind(this), false) // extended version: automatic playback
+
 		new MutationObserver(function (mutations) { // AJAX: non player page -> player page or player page -> profile page w/ player
 			mutations.forEach(function (mutation) {
 				for (var i = 0; i < mutation.addedNodes.length; i++) {
@@ -74,7 +75,7 @@
 						console.log('channel')
 						this.player = null
 						this.flash = false
-						this.playerCount = 0
+						this.playerCount = 1
 						this.count = 0
 
 						return this.init()
@@ -82,13 +83,15 @@
 				}
 			}.bind(this))
 		}.bind(this)).observe(document.body, { childList: true, subtree: true })
-		new MutationObserver(function (mutations) { // AJAX: player -> player
-			if (this.player && this.player.dataset.youtubeId !== mutations[0].oldValue) { // mutation event fired even though same value
-				console.log('player')
-				this.count = 0
-				this.init()
-			}
-		}.bind(this)).observe(this.player, { attributes: true, attributeFilter: ['data-youtube-id'], attributeOldValue: true })
+
+		if (this.player)
+			new MutationObserver(function (mutations) { // AJAX: player -> player
+				if (this.player && this.player.dataset.youtubeId !== mutations[0].oldValue) { // mutation event fired even though same value
+					console.log('player')
+					this.count = 0
+					this.init()
+				}
+			}.bind(this)).observe(this.player, { attributes: true, attributeFilter: ['data-youtube-id'], attributeOldValue: true })
 	}
 
 	StopAutoplay.prototype.isWatchPage = function () {
@@ -98,8 +101,10 @@
 	StopAutoplay.prototype.isChannelPage = function () {
 		if (location.pathname.indexOf('/channel/') === -1 && location.pathname.indexOf('/user/') === -1) return false // Channel page
 		if (this.playerCount) return true
+
 		this.playerCount = 1
 		window.setTimeout(this.init.bind(this), 1000)
+
 		return false
 	}
 
