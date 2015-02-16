@@ -32,9 +32,12 @@
 		this.flash = false
 		this.player = document.getElementsByTagName('video')[this.playerCount] // without an id the fastest method
 		if (!this.player) {
-			console.log('flash')
-			this.flash = true
-			this.player = document.getElementById('movie_player')
+			var player = document.getElementById('movie_player')
+			if (!player.classList.contains('html5-video-player')) {
+				console.log('flash')
+				this.flash = true
+				this.player = player
+			}
 		}
 	}
 
