@@ -9,7 +9,7 @@
 	"scripts": {
 		"clean": "rimraf dist && mkdir dist",
 
-		"js": "uglifyjs src/inject.js > dist/inject.min.js",
+		"js": "uglifyjs -c drop_console=true src/inject.js > dist/inject.min.js",
 		"json": "json-minify src/manifest.json > dist/manifest.json",
 
 		"copy": "node build.js copyImg",
