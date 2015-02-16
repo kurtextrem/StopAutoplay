@@ -32,12 +32,9 @@
 		this.flash = false
 		this.player = document.getElementsByTagName('video')[this.playerCount] // without an id the fastest method
 		if (!this.player) {
-			var player = document.getElementById('movie_player')
-			if (!player.classList.contains('html5-video-player')) {
-				console.log('flash')
-				this.flash = true
-				this.player = player
-			}
+			console.log('flash')
+			this.flash = true
+			this.player = document.getElementById('movie_player')
 		}
 	}
 
@@ -95,9 +92,23 @@
 		if (location.pathname.indexOf('/channel/') === -1 && location.pathname.indexOf('/user/') === -1) return false
 		if (this.playerCount) return true
 
-		this.count = 0
-		this.playerCount = 1
-		window.setTimeout(this.init.bind(this), 2250)
+		console.log('channel')
+		var observer = new MutationObserver(function (mutations) {
+			mutations.forEach(function (mutation) {
+				for (var i = 0; i < mutation.addedNodes.length; i++) {
+					if (mutation.addedNodes[i].nodeName === 'VIDEO' || mutation.addedNodes[i].nodeName === 'EMBED') {
+						console.log('mutation', mutation.addedNodes[i])
+						if (!this.playerCount) {
+							return this.playerCount = 1
+						}
+						observer.disconnect()
+						return this.init()
+						//return window.setTimeout(this.init.bind(this), 1000)
+					}
+				}
+			}.bind(this))
+		}.bind(this))
+		observer.observe(document.body, { childList: true, subtree: true })
 
 		return false
 	}
