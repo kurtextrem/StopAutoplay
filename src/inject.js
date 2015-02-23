@@ -76,7 +76,7 @@
 	}
 
 	StopAutoplay.prototype.bind = function () {
-		document.addEventListener('visibilitychange', this.handleVisibilityChange.bind(this), false) // extended version: automatic playback
+		window.addEventListener('focus', this.handleVisibilityChange.bind(this), false) // extended version: automatic playback
 
 		window.addEventListener('spfdone', function (e) {
 			console.log('spfdone', e.detail.url)
