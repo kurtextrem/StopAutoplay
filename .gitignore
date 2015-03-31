@@ -217,3 +217,5 @@ pip-log.txt
 
 #Mr Developer
 .mr.developer.cfg
+dist.zip
+src/inject_slowpattern.js

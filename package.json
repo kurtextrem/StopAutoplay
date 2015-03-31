@@ -1,18 +1,22 @@
 {
-  "name": "StopAutoplay",
-  "author": "Jacob Groß (kurtextrem)",
-  "licenseLine": "",
-  "description": "Test",
-  "version": "0.0.1",
-  "devDependencies": {
-    "grunt": "~0.4.2",
-    "grunt-contrib-clean": "~0.5.0",
-    "grunt-contrib-copy": "~0.5.0",
-    "grunt-contrib-uglify": "~0.2.7",
-    "grunt-sed": "~0.1.1",
-    "grunt-jscs-checker": "~0.3.0",
-    "load-grunt-tasks": "~0.2.1",
-    "grunt-zip": "~0.12.0",
-    "grunt-simple-crx": "~0.1.0"
-  }
+	"devDependencies": {
+		"uglify-js": "latest",
+		"rimraf": "latest",
+		"json-minify": "latest",
+		"shelljs": "latest",
+		"zip-dir": "latest"
+	},
+	"scripts": {
+		"clean": "rimraf dist && mkdir dist",
+
+		"js": "uglifyjs -c drop_console=true src/inject.js > dist/inject.min.js",
+		"json": "json-minify src/manifest.json > dist/manifest.json",
+
+		"copy": "node build.js copyImg",
+
+		"build": "npm run clean & npm run js & npm run json & npm run copy",
+		"postjs": "node build.js replaceJS",
+		"postjson": "node build.js replaceJSON",
+		"postbuild": "node build.js buildZip"
+	}
 }
