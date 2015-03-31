@@ -103,7 +103,6 @@
 						}
 						observer.disconnect()
 						return this.init()
-						//return window.setTimeout(this.init.bind(this), 1000)
 					}
 				}
 			}.bind(this))
