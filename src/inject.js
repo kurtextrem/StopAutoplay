@@ -13,6 +13,8 @@
 		this.count = 0
 		/** @type {Number}	Needed because there can be two 'video' elements on the page  */
 		this.playerCount = 0
+		/** @type {Boolean} Whether the video has started playing already  */
+		this.alreadyStarted = false
 
 		this.init()
 		this.bind()
@@ -53,7 +55,7 @@
 	// flash: pauseVideo(), playVideo(), getCurrentTime()
 	StopAutoplay.prototype._exec = function (which) {
 		var action = this.flash ? which + 'Video' : which
-		if (this.player[action] !== undefined)
+		if (this.player !== undefined && this.player[action] !== undefined)
 			this.player[action]()
 	}
 
@@ -62,12 +64,13 @@
 	}
 
 	StopAutoplay.prototype.play = function () {
+		this.alreadyStarted = true
 		this._exec('play')
 	}
 
-	StopAutoplay.prototype.handleVisibilityChange = function () {
+	StopAutoplay.prototype.handleVisibilityChange = function (e) {
 		window.setTimeout(function () {
-			if (!document.hidden)
+			if (!document.hidden && !this.alreadyStarted)
 				this.play()
 		}.bind(this), 60)
 	}
