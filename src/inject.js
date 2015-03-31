@@ -1,83 +1,104 @@
-+function(window) {
++function (window) {
 	'use strict';
-	var StopAutoplay = function() {
-		this.updatePlayer()
-		if (!document.hasFocus())
-			this.stop()
+
+	var document = window.document,
+	location = window.location
+
+	var StopAutoplay = function () {
+		/** @type {Object}	Contains the current video player */
+		this.player = null
+		/** @type {Boolean}	Whether the page uses the flash player or not (rarely used) */
+		this.flash = false
+		/** @type {Number} 	Counter in the stop loop */
+		this.count = 0
+		/** @type {Number}	Needed because there can be two 'video' elements on the page  */
+		this.playerCount = 0
+
+		this.init()
 		this.bind()
 	}
 
-	StopAutoplay.prototype = {
-		construct: StopAutoplay,
+	//StopAutoplay.VERSION = '1.8'
 
-		player: null,
-		html5: false,
-		last: -1,
-		count: 0,
+	StopAutoplay.prototype.init = function () {
+		if (!this.isWatchPage() && !this.isChannelPage()) return
+			this.updatePlayer()
+		if (!document.hasFocus())
+			this.stop()
+	}
 
-		html5action: {
-			play: 'play',
-			pause: 'pause',
-			time: 'getCurrentTime'
-		},
-		action: {
-			play: 'playVideo',
-			pause: 'pauseVideo',
-			time: 'getCurrentTime'
-		},
-
-		updatePlayer: function() {
+	StopAutoplay.prototype.updatePlayer = function () {
+		console.log('update player')
+		this.flash = false
+		this.player = document.getElementsByTagName('video')[this.playerCount] // without an id the fastest method
+		if (!this.player) {
+			console.log('flash')
+			this.flash = true
 			this.player = document.getElementById('movie_player')
-			if (this.player.className.indexOf('html5-video-player') !== -1) {
-				this.html5 = true
-				this.player = document.getElementsByTagName('video')[0]
-				this.player.getCurrentTime = function() { return this.currentTime }
-			}
-		},
-
-		stop: function() {
-			this.pause()
-			if  (this.count < 8) {
-				window.setTimeout(function() {
-					if (document.hasFocus()) return
-					var last = this.getTime()
-					if (last === undefined)
-						return this.stop()
-					if (this.last !== last) {
-						this.last = last
-					} else {
-						this.count++
-					}
-					this.stop()
-				}.bind(this), 4)
-			}
-		},
-
-		_exec: function(which) {
-			var action = this.html5 ? this.html5action[which] : this.action[which]
-			return this.player[action] !== undefined ? this.player[action]() : undefined
-		},
-
-		getTime: function() {
-			return this._exec('time')
-		},
-
-		pause: function() {
-			this._exec('pause')
-		},
-
-		play: function() {
-			this._exec('play')
-		},
-
-		bind: function() {
-			window.addEventListener('popstate', this.updatePlayer.bind(this), false)
 		}
 	}
 
-	window.StopAutoplay = StopAutoplay
-}(window);
+	StopAutoplay.prototype.stop = function () {
+		this.pause()
+		if (this.count < 14) {
+			window.setTimeout(function () {
+				if (document.hasFocus()) return;
+				++this.count
+				this.stop()
+			}.bind(this), 4)
+		}
+	}
 
-// start
-if (location.href.indexOf('watch?') !== -1)
+	// html5: pause(), play(), getCurrentTime
+	// flash: pauseVideo(), playVideo(), getCurrentTime()
+	StopAutoplay.prototype._exec = function (which) {
+		var action = this.flash ? which + 'Video' : which
+		if (this.player[action] !== undefined)
+			this.player[action]()
+	}
+
+	StopAutoplay.prototype.pause = function () {
+		this._exec('pause')
+	}
+
+	StopAutoplay.prototype.bind = function () {
+		window.addEventListener('spfdone', function (e) {
+			console.log('spfdone', e.detail.url)
+			this.player = null
+			this.count = 0
+			this.playerCount = 0
+			this.init()
+		}.bind(this))
+	}
+
+	StopAutoplay.prototype.isWatchPage = function () {
+		return location.pathname === '/watch' && location.search.indexOf('list=') === -1 // Playlist
+	}
+
+	StopAutoplay.prototype.isChannelPage = function () {
+		if (location.pathname.indexOf('/channel/') === -1 && location.pathname.indexOf('/user/') === -1) return false
+			if (this.playerCount) return true
+			console.log('channel')
+
+			var observer = new MutationObserver(function (mutations) {
+				mutations.forEach(function (mutation) {
+					for (var i = 0; i < mutation.addedNodes.length; i++) {
+						if (mutation.addedNodes[i].nodeName === 'VIDEO' || mutation.addedNodes[i].nodeName === 'EMBED') {
+							console.log('mutation', mutation.addedNodes[i])
+							if (!this.playerCount) {
+								return this.playerCount = 1
+							}
+							observer.disconnect()
+							return this.init()
+						}
+					}
+				}.bind(this))
+			}.bind(this))
+			observer.observe(document.body, { childList: true, subtree: true })
+
+			return false
+		}
+
+	// start
 	new StopAutoplay()
+}(window);
