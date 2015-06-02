@@ -1,5 +1,6 @@
+/* global console */
 +function (window) {
-	'use strict';
+	'use strict'
 
 	var document = window.document,
 		location = window.location
