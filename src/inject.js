@@ -166,7 +166,7 @@
 
 		console.log('channel')
 		var observer = new MutationObserver(function (mutations) { // player not found, let's wait for the init
-			console.log(mutations)
+			// console.log(mutations)
 			mutations.forEach(function (mutation) {
 				for (var i = 0; i < mutation.addedNodes.length; i++) {
 					if (mutation.addedNodes[i].nodeName === 'VIDEO' || mutation.addedNodes[i].nodeName === 'EMBED') { // check for flash or html5

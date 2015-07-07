@@ -3,7 +3,7 @@
 	"version": "1.8.1",
 	"manifest_version": 2,
 
-	"description": "Eases your YouTube\u2122 experience. Stops autoplay. Starts the video when you're ready for it.",
+	"description": "Eases your YouTube\u2122 experience. Stops autoplay. Extended version: Starts the video when you focus the tab. Don't like that? Use the version without Extended.",
 	"icons": {
 		"128": "icon128.png",
 		"16": "icon16.png",
