@@ -1,4 +1,3 @@
-/* global console */
 +function (window) {
 	'use strict'
 
@@ -25,7 +24,7 @@
 		this.bind()
 	}
 
-	//StopAutoplay.VERSION = '1.8'
+	// StopAutoplay.VERSION = '1.81'
 
 	/**
 	 * Main function to determine following actions.
