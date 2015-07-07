@@ -67,7 +67,7 @@
 	 */
 	StopAutoplay.prototype.stop = function () {
 		this.pause()
-		if (this.count < 14) {
+		if (this.count < 16) {
 			window.setTimeout(function () {
 				if (document.hasFocus()) return;
 				++this.count
