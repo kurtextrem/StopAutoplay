@@ -13,7 +13,7 @@
 	 */
 	var StopAutoplay = function () {
 		/** @type {Object}	Contains the current video player */
-		this.player = null
+		this.player = []
 		/** @type {Boolean}	Whether the page uses the flash player or not (rarely used) */
 		this.flash = false
 		/** @type {Number} 	Counter in the stop loop */
