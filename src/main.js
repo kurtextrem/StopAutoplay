@@ -12,7 +12,7 @@
 	 */
 	var StopAutoplay = function () {
 		/** @type {Object}	Contains the current video player */
-		this.player = document.getElementById('movie_player')
+		this.player = []
 		/** @type {Boolean}	Needed because the channel player is a c4 and not a movie player.  */
 		this.channelPlayer = false
 
@@ -90,7 +90,7 @@
 		// wait for youtube
 		var original = window.onYouTubePlayerReady // safety
 		window.onYouTubePlayerReady = function () {
-			console.log('called')
+			console.log('player ready')
 			this.init()
 			if (original) original()
 		}.bind(this)
