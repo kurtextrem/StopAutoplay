@@ -2,8 +2,7 @@
 	'use strict'
 
 	var document = window.document,
-		location = window.location,
-		yt = window.onYouTubePlayerReady // safety
+		location = window.location
 
 	/**
 	 * The constructor, binds and initializes vars.
@@ -14,8 +13,9 @@
 	var StopAutoplay = function () {
 		/** @type {Object}	Contains the current video player */
 		this.player = document.getElementById('movie_player')
+		/** @type {Boolean}	Needed because the channel player is a c4 and not a movie player.  */
+		this.channelPlayer = false
 
-		this.init()
 		this.bind()
 	}
 
@@ -29,8 +29,20 @@
 	 */
 	StopAutoplay.prototype.init = function () {
 		if (!this.isWatchPage() && !this.isChannelPage()) return
+		this.updatePlayer()
 		if (!document.hasFocus())
 			this.pause()
+	}
+
+	/**
+	 * Updates the player element.
+	 *
+	 * @author 	Jacob Groß
+	 * @date   	2015-07-15
+	 */
+	StopAutoplay.prototype.updatePlayer = function () {
+		console.log('update player')
+		this.player = document.getElementById('c4-player') || document.getElementById('movie_player') ||  []
 	}
 
 	/**
@@ -40,6 +52,7 @@
 	 * @date   	2015-07-07
 	 */
 	StopAutoplay.prototype.pause = function () {
+		console.log('pause')
 		this.player.pauseVideo()
 	}
 
@@ -50,6 +63,7 @@
 	 * @date   	2015-07-07
 	 */
 	StopAutoplay.prototype.play = function () {
+		console.log('play')
 		this.player.playVideo()
 	}
 
@@ -73,13 +87,18 @@
 	 * @date   	2015-07-07
 	 */
 	StopAutoplay.prototype.bind = function () {
+		// wait for youtube
+		var original = window.onYouTubePlayerReady // safety
+		window.onYouTubePlayerReady = function () {
+			console.log('called')
+			this.init()
+			if (original) original()
+		}.bind(this)
+
 		window.addEventListener('focus', this.handleVisibilityChange.bind(this), false) // extended version: automatic playback
 
-		window.addEventListener('spfdone', function (e) {
+		window.addEventListener('spfdone', function (e) { // needed for player -> player
 			console.log('spfdone', e.detail.url)
-			this.player = null
-			this.count = 0
-			this.playerCount = 0
 			this.init()
 		}.bind(this))
 	}
@@ -97,47 +116,18 @@
 
 	/**
 	 * Whether the current page is a channel page.
-	 * If there is no player, this method waits for the channel player to initialize.
 	 *
 	 * @author 	Jacob Groß
-	 * @date   	2015-07-07
+	 * @date   	2015-07-15
 	 * @return 	{Boolean}
 	 */
 	StopAutoplay.prototype.isChannelPage = function () {
-		if (location.pathname.indexOf('/channel/') === -1 && location.pathname.indexOf('/user/') === -1) return false
-		if (this.playerCount) return true // player already found
-
-		console.log('channel')
-		var observer = new MutationObserver(function (mutations) { // player not found, let's wait for the init
-			// console.log(mutations)
-			mutations.forEach(function (mutation) {
-				for (var i = 0; i < mutation.addedNodes.length; i++) {
-					if (mutation.addedNodes[i].nodeName === 'VIDEO' || mutation.addedNodes[i].nodeName === 'EMBED') { // check for flash or html5
-						console.log('mutation', mutation.addedNodes[i])
-
-						if (!this.playerCount) {
-							this.playerCount = 1
-							return
-						}
-
-						observer.disconnect() // waiting is over
-						return this.init()
-					}
-				}
-			}.bind(this))
-		}.bind(this))
-		observer.observe(document.body, { childList: true, subtree: true })
-
-		return false
+		return location.pathname.indexOf('/channel/') === -1 || location.pathname.indexOf('/user/') !== -1
 	}
 
 	// start
-	window.onYouTubePlayerReady = function () {
-		console.log('called')
-		new StopAutoplay()
-		yt()
-	}
-
+	new StopAutoplay()
 }(window);
+
 console.log('loaded')
 debugger;
