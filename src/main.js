@@ -26,12 +26,12 @@
 	 *
 	 * @author 	Jacob Groß
 	 * @date   	2015-07-07
+	 * @param	{Boolean}	bypass	Whether to bypass the page check or not.
 	 */
-	StopAutoplay.prototype.init = function () {
-		if (!this.isWatchPage() && !this.isChannelPage()) return
+	StopAutoplay.prototype.init = function (bypass) {
+		if (!bypass && !this.isWatchPage() && !this.isChannelPage()) return
 		this.updatePlayer()
-		if (!document.hasFocus())
-			this.pause()
+		this.stop()
 	}
 
 	/**
@@ -43,6 +43,17 @@
 	StopAutoplay.prototype.updatePlayer = function () {
 		console.log('update player')
 		this.player = document.getElementById('c4-player') || document.getElementById('movie_player') ||  []
+	}
+
+	/**
+	 * Stops the player.
+	 *
+	 * @author 	Jacob Groß
+	 * @date   	2015-07-16
+	 */
+	StopAutoplay.prototype.stop = function () {
+		// if (!document.hasFocus())
+			this.pause()
 	}
 
 	/**
@@ -91,9 +102,20 @@
 		var original = window.onYouTubePlayerReady // safety
 		window.onYouTubePlayerReady = function () {
 			console.log('player ready')
-			this.init()
+			this.updatePlayer()
+			this.player.addEventListener('onStateChange', 'playerStateChange')
+			this.player.addEventListener('onReady', 'onPlayerReady')
+			this.init(true)
 			if (original) original()
 		}.bind(this)
+
+		window.playerStateChange = function (e) {
+			console.log('state change', e)
+		}
+
+		window.onPlayerReady = function () {
+			console.log('rdy')
+		}
 
 		window.addEventListener('focus', this.handleVisibilityChange.bind(this), false) // extended version: automatic playback
 
