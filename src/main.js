@@ -103,6 +103,7 @@
 			this.player.addEventListener('onStateChange', 'playerStateChange')
 			this.player.addEventListener('onReady', 'onPlayerReady')
 			this.init(true)
+			this.stop()
 			if (original) original()
 		}.bind(this)
 
