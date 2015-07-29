@@ -12,9 +12,9 @@
 	 */
 	var StopAutoplay = function () {
 		/** @type {Object}	Contains the current video player. */
-		this.player = []
-		/** @type {Object}	Helper for channels with promo videos (holds the /watch player). */
-		this.holder = []
+		this.player = {}
+		this.isWatch = this.isWatchPage()
+		this.prevState = 0
 
 		this.bind()
 	}
@@ -28,11 +28,10 @@
 	 * @date   	2015-07-29
 	 */
 	StopAutoplay.prototype.initPlayer = function (player) {
-		if (document.getElementById('c4-player') === null && this.player.length > 0) return
-		this.holder = player
+		console.log('update player', player)
 		this.player = player
 		this.player.addEventListener('onStateChange', 'playerStateChange')
-		this.player.addEventListener('onReady', 'onPlayerReady') // @todo: if state = 3 when firing => internet slow  = stop fails? investigate
+		this.player.addEventListener('onReady', 'onPlayerReady')
 	}
 
 	/**
@@ -46,7 +45,7 @@
 		var original = window.onYouTubePlayerReady
 
 		window.onYouTubePlayerReady = function (player) {
-			console.log('player ready', player)
+			console.log('player ready', player, player.getPlayerState())
 
 			this.initPlayer(player)
 			this.stop()
@@ -55,11 +54,14 @@
 		}.bind(this)
 
 		window.onPlayerReady = function (player) { // sometimes fired
-			console.log('rdy', player)
+			console.log('rdy', player, player.getPlayerState())
 			this.stop()
 		}.bind(this)
 
 		window.playerStateChange = function (state) {
+			if (this.prevState === 3 && state === 1)
+				this.stop()
+			this.prevState = state
 			console.log('state change', state)
 		}.bind(this)
 
@@ -70,14 +72,13 @@
 		// goal: keep main player (like yt does, it loads the /watch video player on every load and keeps it over spf; Other players get reinited every time)
 		window.addEventListener('spfdone', function (e) {
 			console.log('spfdone', e.detail.url)
-			if (this.holder.length < 0) return
-			if (this.isWatchPage()) {
-				this.player = this.holder
-				this.holder = []
+
+			if (!this.isWatch && this.isWatchPage()) {
+				this.initPlayer(document.getElementById('movie_player'))
+				this.isWatch = true
 				return
-			}
-			if (this.isChannelPage()) {
-				this.player = this.holder
+			} else {
+				this.isWatch = false
 			}
 		}.bind(this))
 
