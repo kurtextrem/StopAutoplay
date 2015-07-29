@@ -13,23 +13,20 @@
 	var StopAutoplay = function () {
 		/** @type {Object}	Contains the current video player */
 		this.player = []
-		/** @type {Boolean}	Needed because the channel player is a c4 and not a movie player.  */
-		this.channelPlayer = false
 
 		this.bind()
 	}
 
-	// StopAutoplay.VERSION = '1.81'
+	// StopAutoplay.VERSION = '2.0'
 
 	/**
 	 * Main function to determine following actions.
 	 *
 	 * @author 	Jacob Groß
-	 * @date   	2015-07-07
-	 * @param	{Boolean}	bypass	Whether to bypass the page check or not.
+	 * @date   	2015-07-29
 	 */
-	StopAutoplay.prototype.init = function (bypass) {
-		if (!bypass && !this.isWatchPage() && !this.isChannelPage()) return
+	StopAutoplay.prototype.init = function () {
+		if (!this.isWatchPage() && !this.isChannelPage()) return
 		this.updatePlayer()
 		this.stop()
 	}
@@ -41,19 +38,19 @@
 	 * @date   	2015-07-15
 	 */
 	StopAutoplay.prototype.updatePlayer = function () {
-		console.log('update player')
 		this.player = document.getElementById('c4-player') || document.getElementById('movie_player') ||  []
+		console.log('update player', this.player)
 	}
 
 	/**
 	 * Stops the player.
 	 *
 	 * @author 	Jacob Groß
-	 * @date   	2015-07-16
+	 * @date   	2015-07-29
 	 */
 	StopAutoplay.prototype.stop = function () {
 		// if (!document.hasFocus())
-			this.pause()
+			this._pause()
 	}
 
 	/**
@@ -62,7 +59,7 @@
 	 * @author 	Jacob Groß
 	 * @date   	2015-07-07
 	 */
-	StopAutoplay.prototype.pause = function () {
+	StopAutoplay.prototype._pause = function () {
 		console.log('pause')
 		this.player.pauseVideo()
 	}
@@ -73,7 +70,7 @@
 	 * @author 	Jacob Groß
 	 * @date   	2015-07-07
 	 */
-	StopAutoplay.prototype.play = function () {
+	StopAutoplay.prototype._play = function () {
 		console.log('play')
 		this.player.playVideo()
 	}
@@ -82,12 +79,12 @@
 	 * Event handler when the tab gets visible.
 	 *
 	 * @author 	Jacob Groß
-	 * @date   	2015-07-07
+	 * @date   	2015-07-29
 	 */
 	StopAutoplay.prototype.handleVisibilityChange = function () {
 		window.setTimeout(function () {
 			if (!document.hidden)
-				this.play()
+				this._play()
 		}.bind(this), 60)
 	}
 
@@ -95,34 +92,35 @@
 	 * Binds event handlers.
 	 *
 	 * @author 	Jacob Groß
-	 * @date   	2015-07-07
+	 * @date   	2015-07-29
 	 */
 	StopAutoplay.prototype.bind = function () {
 		// wait for youtube
 		var original = window.onYouTubePlayerReady // safety
-		window.onYouTubePlayerReady = function () {
-			console.log('player ready')
-			this.updatePlayer()
+		window.onYouTubePlayerReady = function (e) {
+			console.log('player ready', e)
+			this.player = e
 			this.player.addEventListener('onStateChange', 'playerStateChange')
 			this.player.addEventListener('onReady', 'onPlayerReady')
 			this.init(true)
 			if (original) original()
 		}.bind(this)
 
+		window.onPlayerReady = function (e) { // sometimes fired
+			console.log('rdy', e)
+			this.stop()
+		}.bind(this)
+
 		window.playerStateChange = function (e) {
 			console.log('state change', e)
-		}
-
-		window.onPlayerReady = function () {
-			console.log('rdy')
-		}
+		}.bind(this)
 
 		window.addEventListener('focus', this.handleVisibilityChange.bind(this), false) // extended version: automatic playback
 
 		window.addEventListener('spfdone', function (e) { // needed for player -> player
 			console.log('spfdone', e.detail.url)
 			this.init()
-		}.bind(this))
+		}.bind(this), false)
 	}
 
 	/**
@@ -152,4 +150,3 @@
 }(window);
 
 console.log('loaded')
-debugger;
