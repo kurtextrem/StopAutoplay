@@ -19,5 +19,11 @@
 
 	"web_accessible_resources": ["main.js"],
 
+	"options_page": "options.html",
+	"options_ui": {
+		"page": "options.html",
+		"chrome_style": true
+	},
+
 	"minimum_chrome_version": "33"
 }
