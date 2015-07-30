@@ -13,7 +13,9 @@
 	var StopAutoplay = function () {
 		/** @type {Object}	Contains the current video player. */
 		this.player = {}
+		/** @type {Boolean}  	Whether the current page is a /watch page or not. */
 		this.isWatch = this.isWatchPage()
+		/** @type {Number}  	Holds the previous player state. */
 		this.prevState = 0
 
 		this.bind()
@@ -44,6 +46,7 @@
 		// wait for youtube
 		var original = window.onYouTubePlayerReady
 
+		/** Called upon /watch player init */
 		window.onYouTubePlayerReady = function (player) {
 			console.log('player ready', player, player.getPlayerState())
 
@@ -53,11 +56,13 @@
 			if (original) original()
 		}.bind(this)
 
-		window.onPlayerReady = function (player) { // sometimes fired
+		/** Called whenever the player is ready for the first time (usually page load, or channel player init)*/
+		window.onPlayerReady = function (player) {
 			console.log('rdy', player, player.getPlayerState())
 			this.stop()
 		}.bind(this)
 
+		/** Called whenever the player changes its state. */
 		window.playerStateChange = function (state) {
 			if (!this.prevState) return // prevent stopping when manually clicking the video timeline
 			if (this.prevState === 3 && state === 1) {
@@ -69,6 +74,7 @@
 			console.log('state change', state)
 		}.bind(this)
 
+		/** Called whenever a page transition is done. */
 		window.addEventListener('spfdone', function (e) {
 			console.log('spfdone', e.detail.url)
 			this.prevState = 1 // activate playerStateChange
@@ -82,7 +88,8 @@
 				this.isWatch = false
 		}.bind(this))
 
-		window.addEventListener('focus', this.handleVisibilityChange.bind(this)) // extended version: automatic playback
+		/** Handler for the "Extended" version */
+		window.addEventListener('focus', this.handleVisibilityChange.bind(this))
 	}
 
 	/**
@@ -92,9 +99,9 @@
 	 * @date   	2015-07-29
 	 */
 	StopAutoplay.prototype.stop = function () {
-		//if (!document.hasFocus()) {
+		if (!document.hasFocus()) {
 			this._pause()
-		//}
+		}
 	}
 
 	/**
@@ -116,7 +123,7 @@
 	 */
 	StopAutoplay.prototype._play = function () {
 		console.log('play')
-		//this.player.playVideo()
+		this.player.playVideo()
 	}
 
 	/**
@@ -126,7 +133,6 @@
 	 * @date   	2015-07-29
 	 */
 	StopAutoplay.prototype.handleVisibilityChange = function () {
-		return;
 		window.setTimeout(function () {
 			if (!document.hidden)
 				this._play()
