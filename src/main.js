@@ -77,9 +77,9 @@
 				this.initPlayer(document.getElementById('movie_player'))
 				this.isWatch = true
 				return
-			} else {
-				this.isWatch = false
 			}
+			if (this.isChannelPage())
+				this.isWatch = false
 		}.bind(this))
 
 		window.addEventListener('focus', this.handleVisibilityChange.bind(this)) // extended version: automatic playback
