@@ -124,19 +124,6 @@
 	}
 
 	/**
-	 * Event handler when the tab gets visible.
-	 *
-	 * @author 	Jacob Groß
-	 * @date   	2015-07-29
-	 */
-	StopAutoplay.prototype.handleVisibilityChange = function () {
-		window.setTimeout(function () {
-			if (!document.hidden)
-				this._play()
-		}.bind(this), 60)
-	}
-
-	/**
 	 * Whether the current page is a main video.
 	 *
 	 * @author 	Jacob Groß
