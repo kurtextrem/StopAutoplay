@@ -14,7 +14,7 @@
 		/** @type {Object}	Contains the current video player. */
 		this.player = {}
 		this.isWatch = this.isWatchPage()
-		this.prevState = 1
+		this.prevState = 0
 
 		this.bind()
 	}
@@ -60,9 +60,10 @@
 
 		window.playerStateChange = function (state) {
 			if (!this.prevState) return // prevent stopping when manually clicking the video timeline
-			if (this.prevState === 3 && state === 1) {// ( || prevState === -1?)
+			if (this.prevState === 3 && state === 1) {
 				this.stop()
 				this.prevState = 0 // prevent stopping when manually clicking the video timeline
+				return
 			}
 			this.prevState = state
 			console.log('state change', state)
