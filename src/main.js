@@ -14,7 +14,7 @@
 		/** @type {Object}	Contains the current video player. */
 		this.player = {}
 		this.isWatch = this.isWatchPage()
-		this.prevState = 0
+		this.prevState = 1
 
 		this.bind()
 	}
@@ -59,19 +59,18 @@
 		}.bind(this)
 
 		window.playerStateChange = function (state) {
-			if (this.prevState === 3 && state === 1)
+			if (!this.prevState) return // prevent stopping when manually clicking the video timeline
+			if (this.prevState === 3 && state === 1) {// ( || prevState === -1?)
 				this.stop()
+				this.prevState = 0 // prevent stopping when manually clicking the video timeline
+			}
 			this.prevState = state
 			console.log('state change', state)
 		}.bind(this)
 
-		// channel -> watch [x]
-		// channel -> channel [x]
-		// watch -> channel [x]
-		// channel -> channel -> channel [x]
-		// goal: keep main player (like yt does, it loads the /watch video player on every load and keeps it over spf; Other players get reinited every time)
 		window.addEventListener('spfdone', function (e) {
 			console.log('spfdone', e.detail.url)
+			this.prevState = 1 // activate playerStateChange
 
 			if (!this.isWatch && this.isWatchPage()) {
 				this.initPlayer(document.getElementById('movie_player'))
