@@ -1,9 +1,9 @@
 {
 	"name": "Stop Autoplay for Youtube\u2122",
-	"version": "1.1",
+	"version": "2.0",
 	"manifest_version": 2,
 
-	"description": "Eases your YouTube\u2122 experience through stopping the autoplay. This is the version without Extended.",
+	"description": "Eases your YouTube\u2122 experience through stopping the autoplay. This is the version without the 'Extended' features.",
 	"icons": {
 		"128": "icon128.png",
 		"16": "icon16.png",
@@ -14,6 +14,10 @@
 	"content_scripts": [{
 		"matches": ["http://www.youtube.com/*", "http://youtube.com/*", "https://www.youtube.com/*", "https://youtube.com/*"],
 		"js": ["inject.js"],
-		"run_at": "document_idle"
-	}]
+		"run_at": "document_start"
+	}],
+
+	"web_accessible_resources": ["main.js"],
+
+	"minimum_chrome_version": "33"
 }
