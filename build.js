@@ -1,6 +1,6 @@
 /* jshint node: true, devel: true */
 var shell = require('shelljs'),
-	zipdir = require('zip-dir');
+zipdir = require('zip-dir');
 
 +function () {
 	'use strict'
@@ -16,16 +16,26 @@ var shell = require('shelljs'),
 		}.bind(this))
 	}
 
+	Build.prototype.copy = function () {
+		this.copyImg()
+		this.copyHTML()
+	}
+
 	Build.prototype.copyImg = function () {
 		shell.cp('src/*.png', 'dist')
 	}
 
+	Build.prototype.copyHTML = function () {
+		shell.cp('src/*.html', 'dist')
+	}
+
+	/** use strict is faster than w/o */
 	Build.prototype.replaceJS = function () {
-		shell.sed('-i', '"use strict";', '', 'dist/inject.min.js')
+		//shell.sed('-i', '"use strict";', '', 'dist/inject.min.js')
 	}
 
 	Build.prototype.replaceJSON = function () {
-		shell.sed('-i', 'inject.js', 'inject.min.js', 'dist/manifest.json')
+		//shell.sed('-i', 'inject.js', 'inject.min.js', 'dist/manifest.json')
 	}
 
 	Build.prototype.buildZip = function () {
