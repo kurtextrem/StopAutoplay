@@ -9,10 +9,10 @@
 	"scripts": {
 		"clean": "rimraf dist && mkdir dist",
 
-		"js": "uglifyjs src/inject.js > dist/inject.min.js && uglifyjs -c drop_console=true src/main.js > dist/main.min.js",
+		"js": "uglifyjs src/inject.js > dist/inject.js && uglifyjs -c drop_console=true src/main.js > dist/main.js",
 		"json": "json-minify src/manifest.json > dist/manifest.json",
 
-		"copy": "node build.js copyImg",
+		"copy": "node build.js copy",
 
 		"build": "npm run clean & npm run js & npm run json & npm run copy",
 		"postjs": "node build.js replaceJS",

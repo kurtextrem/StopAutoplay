@@ -16,8 +16,17 @@ var shell = require('shelljs'),
 		}.bind(this))
 	}
 
+	Build.prototype.copy = function () {
+		this.copyImg()
+		this.copyHTML()
+	}
+
 	Build.prototype.copyImg = function () {
 		shell.cp('src/*.png', 'dist')
+	}
+
+	Build.prototype.copyHTML = function () {
+		shell.cp('src/*.html', 'dist')
 	}
 
 	/** use strict is faster than w/o */
@@ -26,8 +35,7 @@ var shell = require('shelljs'),
 	}
 
 	Build.prototype.replaceJSON = function () {
-		shell.sed('-i', 'inject.js', 'inject.min.js', 'dist/manifest.json')
-		shell.sed('-i', 'main.js', 'main.min.js', 'dist/manifest.json')
+		//shell.sed('-i', 'inject.js', 'inject.min.js', 'dist/manifest.json')
 	}
 
 	Build.prototype.buildZip = function () {
