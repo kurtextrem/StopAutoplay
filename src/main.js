@@ -51,7 +51,7 @@
 			console.log('player ready', player, player.getPlayerState())
 
 			this.initPlayer(player)
-			this.stop()
+			this._stop()
 
 			if (original) original()
 		}.bind(this)
@@ -59,14 +59,14 @@
 		/** Called whenever the player is ready for the first time (usually page load, or channel player init)*/
 		window.onPlayerReady = function (player) {
 			console.log('rdy', player, player.getPlayerState())
-			this.stop()
+			this._stop()
 		}.bind(this)
 
 		/** Called whenever the player changes its state. */
 		window.playerStateChange = function (state) {
 			if (!this.prevState) return // prevent stopping when manually clicking the video timeline
 			if (this.prevState === 3 && state === 1) {
-				this.stop()
+				this._stop()
 				this.prevState = 0 // prevent stopping when manually clicking the video timeline
 				return
 			}
@@ -98,7 +98,7 @@
 	 * @author 	Jacob Groß
 	 * @date   	2015-07-29
 	 */
-	StopAutoplay.prototype.stop = function () {
+	StopAutoplay.prototype._stop = function () {
 		if (!document.hasFocus()) {
 			this._pause()
 		}
