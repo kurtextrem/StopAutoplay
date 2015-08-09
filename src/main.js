@@ -16,7 +16,7 @@
 		/** @type {Boolean}  	Whether the current page is a /watch page or not. */
 		this.isWatch = this.isWatchPage()
 		/** @type {Number}  	Holds the previous player state. */
-		this.prevState = 0
+		this.prevState = [1, 1]
 
 		this.bind()
 	}
@@ -43,10 +43,10 @@
 	 * @date   	2015-07-29
 	 */
 	StopAutoplay.prototype.bind = function () {
-		// wait for youtube
+		// safety, if there is any other extension for example.
 		var original = window.onYouTubePlayerReady
 
-		/** Called upon /watch player init */
+		/** Called upon every (/watch and channel) player init (/watch player is initiated on every youtube page => even if not on /watch) */
 		window.onYouTubePlayerReady = function (player) {
 			console.log('player ready', player, player.getPlayerState())
 
@@ -56,28 +56,28 @@
 			if (original) original()
 		}.bind(this)
 
-		/** Called whenever the player is ready for the first time (usually page load, or channel player init)*/
+		/** Called whenever a player is ready for the first time (usually page load, or channel player init) */
 		window.onPlayerReady = function (player) {
 			console.log('rdy', player, player.getPlayerState())
 			this._stop()
 		}.bind(this)
 
-		/** Called whenever the player changes its state. */
+		/** Called whenever a player changes its state. */
 		window.playerStateChange = function (state) {
-			if (!this.prevState) return // prevent stopping when manually clicking the video timeline
-			if (this.prevState === 3 && state === 1) {
+			console.log('state change', state, this.prevState)
+			if (!this.prevState[0]) return // prevent stopping when manually clicking the video timeline
+			if (this.prevState[0] === -1 && this.prevState[1] === 3 && state === 1) {
 				this._stop()
-				this.prevState = 0 // prevent stopping when manually clicking the video timeline
+				this.prevState = [0, 0] // prevent stopping when manually clicking the video timeline
 				return
 			}
 			this.prevState = state
-			console.log('state change', state)
 		}.bind(this)
 
 		/** Called whenever a page transition is done. */
 		window.addEventListener('spfdone', function (e) {
 			console.log('spfdone', e.detail.url)
-			this.prevState = 1 // activate playerStateChange
+			this.prevState = [1, 1] // activate playerStateChange
 
 			if (!this.isWatch && this.isWatchPage()) {
 				this.initPlayer(document.getElementById('movie_player'))
@@ -88,7 +88,7 @@
 				this.isWatch = false
 		}.bind(this))
 
-		/** Handler for the "Extended" version */
+		/** Handler for the "Extended" version. */
 		window.addEventListener('focus', this.handleVisibilityChange.bind(this))
 	}
 
