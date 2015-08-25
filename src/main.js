@@ -48,30 +48,35 @@
 
 		/** Called upon every (/watch and channel) player init (/watch player is initiated on every youtube page => even if not on /watch) */
 		window.onYouTubePlayerReady = function (player) {
-			console.log('player ready', player, player.getPlayerState())
+			console.log('player ready', player, player.getPlayerState(), player.getCurrentTime())
 
 			this.initPlayer(player)
 			this._stop()
+
+			console.log(player.getCurrentTime())
 
 			if (original) original()
 		}.bind(this)
 
 		/** Called whenever a player is ready for the first time (usually page load, or channel player init) */
 		window.onPlayerReady = function (player) {
-			console.log('rdy', player, player.getPlayerState())
 			this._stop()
+			console.log('rdy', player, player.getPlayerState(), player.getCurrentTime())
+			console.log(player.getCurrentTime())
 		}.bind(this)
 
 		/** Called whenever a player changes its state. */
 		window.playerStateChange = function (state) {
-			console.log('state change', state, this.prevState)
+			console.log('state change', state, 'prev:' + this.prevState)
 			if (!this.prevState[0]) return // prevent stopping when manually clicking the video timeline
-			if (this.prevState[0] === -1 && this.prevState[1] === 3 && state === 1) {
+			if (this.prevState[0] === -1 && this.prevState[1] === 3 && state === 1) { // @todo: States checken
 				this._stop()
 				this.prevState = [0, 0] // prevent stopping when manually clicking the video timeline
 				return
 			}
-			this.prevState = state
+
+			if (this.prevState[0]) return this.prevState[1] = state
+			this.prevState[0] = state
 		}.bind(this)
 
 		/** Called whenever a page transition is done. */
