@@ -11,90 +11,68 @@
 	 * @date   	2015-07-07
 	 */
 	var StopAutoplay = function () {
-		/** @type {Object}	Contains the current video player. */
-		this.player = {}
-		/** @type {Boolean}  	Whether the current page is a /watch page or not. */
-		this.isWatch = this.isWatchPage()
-		/** @type {Number}  	Holds the previous player state. */
-		this.prevState = [1, 1]
-
-		this.bind()
+		this.waitForPlayer()
+		this.bindGeneral()
 	}
 
-	// StopAutoplay.VERSION = '2.0'
+	// StopAutoplay.VERSION = '3.0'
 
-	/**
-	 * Sets the player and adds listeners.
-	 *
-	 * @author 	Jacob Groß
-	 * @date   	2015-07-29
-	 */
-	StopAutoplay.prototype.initPlayer = function (player) {
-		console.log('update player', player)
-		this.player = player
-		this.player.addEventListener('onStateChange', 'playerStateChange')
-		this.player.addEventListener('onReady', 'onPlayerReady')
+	StopAutoplay.prototype.waitForPlayer = function () {
+		var observer = new MutationObserver(function (mutations) {
+			Object.keys(mutations).map(function (key) {
+				var mutation = mutations[key].addedNodes
+				for (var i = 0; i < mutation.length; i++) {
+					if (mutation[i].nodeName !== 'VIDEO') continue
+
+					console.log('mutation', mutation[i])
+
+					observer.disconnect() // waiting is over
+					return this.bindPlayer(mutation[i])
+				}
+			}.bind(this))
+		}.bind(this))
+		observer.observe(document, { childList: true, subtree: true })
 	}
 
+	StopAutoplay.prototype.bindPlayer = function (player) {
+		console.log('binding', player)
+
+		if (player.readyState > 1) {
+			this.stopAutoplay(player)
+		}
+
+		player.addEventListener('canplay', this.stopAutoplay.bind(this, player))
+
+		/** Handler for the "Extended" version. */
+		window.addEventListener('focus', this.handleVisibilityChange.bind(this, player))
+	}
+
+
 	/**
-	 * Binds event handlers.
+	 * Binds non /watch / channel specific event handlers.
 	 *
 	 * @author 	Jacob Groß
-	 * @date   	2015-07-29
+	 * @date   	2015-08-25
 	 */
-	StopAutoplay.prototype.bind = function () {
+	StopAutoplay.prototype.bindGeneral = function () {
 		// safety, if there is any other extension for example.
 		var original = window.onYouTubePlayerReady
 
-		/** Called upon every (/watch and channel) player init (/watch player is initiated on every youtube page => even if not on /watch) */
+		/** Stops videos on channels. */
 		window.onYouTubePlayerReady = function (player) {
 			console.log('player ready', player, player.getPlayerState(), player.getCurrentTime())
 
-			this.initPlayer(player)
-			this._stop()
+			this.stopAutoplay(player)
 
 			console.log(player.getCurrentTime())
 
 			if (original) original()
 		}.bind(this)
 
-		/** Called whenever a player is ready for the first time (usually page load, or channel player init) */
-		window.onPlayerReady = function (player) {
-			this._stop()
-			console.log('rdy', player, player.getPlayerState(), player.getCurrentTime())
-			console.log(player.getCurrentTime())
-		}.bind(this)
-
-		/** Called whenever a player changes its state. */
-		window.playerStateChange = function (state) {
-			console.log('state change', state, 'prev:' + this.prevState)
-			if (!this.prevState[0]) return // prevent stopping when manually clicking the video timeline
-			if (this.prevState[0] === -1 && this.prevState[1] === 3 && state === 1) { // @todo: States checken
-				this._stop()
-				this.prevState = [0, 0] // prevent stopping when manually clicking the video timeline
-				return
-			}
-
-			if (this.prevState[0]) return this.prevState[1] = state
-			this.prevState[0] = state
-		}.bind(this)
-
 		/** Called whenever a page transition is done. */
 		window.addEventListener('spfdone', function (e) {
 			console.log('spfdone', e.detail.url)
-			this.prevState = [1, 1] // activate playerStateChange
-
-			if (!this.isWatch && this.isWatchPage()) {
-				this.initPlayer(document.getElementById('movie_player'))
-				this.isWatch = true
-				return
-			}
-			if (this.isChannelPage())
-				this.isWatch = false
 		}.bind(this))
-
-		/** Handler for the "Extended" version. */
-		window.addEventListener('focus', this.handleVisibilityChange.bind(this))
 	}
 
 	/**
@@ -103,9 +81,10 @@
 	 * @author 	Jacob Groß
 	 * @date   	2015-07-29
 	 */
-	StopAutoplay.prototype._stop = function () {
+	StopAutoplay.prototype.stopAutoplay = function (player) {
+		console.log('stopAutoplay')
 		if (!document.hasFocus()) {
-			this._pause()
+			this._pause(player)
 		}
 	}
 
@@ -115,9 +94,11 @@
 	 * @author 	Jacob Groß
 	 * @date   	2015-07-07
 	 */
-	StopAutoplay.prototype._pause = function () {
+	StopAutoplay.prototype._pause = function (player) {
 		console.log('pause')
-		this.player.pauseVideo()
+		if (player.pause)
+			return player.pause()
+		player.pauseVideo()
 	}
 
 	/**
@@ -126,9 +107,11 @@
 	 * @author 	Jacob Groß
 	 * @date   	2015-07-07
 	 */
-	StopAutoplay.prototype._play = function () {
+	StopAutoplay.prototype._play = function (player) {
 		console.log('play')
-		this.player.playVideo()
+		if (player.play)
+			return player.play()
+		player.playVideo()
 	}
 
 	/**
@@ -137,33 +120,11 @@
 	 * @author 	Jacob Groß
 	 * @date   	2015-07-29
 	 */
-	StopAutoplay.prototype.handleVisibilityChange = function () {
+	StopAutoplay.prototype.handleVisibilityChange = function (player) {
 		window.setTimeout(function () {
 			if (!document.hidden)
-				this._play()
+				this._play(player)
 		}.bind(this), 60)
-	}
-
-	/**
-	 * Whether the current page is a main video.
-	 *
-	 * @author 	Jacob Groß
-	 * @date   	2015-07-07
-	 * @return 	{Boolean}
-	 */
-	StopAutoplay.prototype.isWatchPage = function () {
-		return location.pathname === '/watch' && location.search.indexOf('list=') === -1 // Playlist
-	}
-
-	/**
-	 * Whether the current page is a channel page.
-	 *
-	 * @author 	Jacob Groß
-	 * @date   	2015-07-15
-	 * @return 	{Boolean}
-	 */
-	StopAutoplay.prototype.isChannelPage = function () {
-		return location.pathname.indexOf('/channel/') === -1 || location.pathname.indexOf('/user/') !== -1
 	}
 
 	// start
