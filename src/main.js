@@ -1,148 +1,121 @@
 +function (window) {
 	'use strict'
 
-	var document = window.document,
-		location = window.location
+	var document = window.document
 
 	/**
-	 * The constructor, binds and initializes vars.
-	 *
-	 * @author 	Jacob Groß
-	 * @date   	2015-07-07
-	 */
+	* The constructor, binds and initializes vars.
+	*
+	* @author 	Jacob Groß
+	* @date   	2015-07-07
+	*/
 	var StopAutoplay = function () {
-		/** @type {Object}	Contains the current video player. */
-		this.player = {}
-		/** @type {Boolean}  	Whether the current page is a /watch page or not. */
-		this.isWatch = this.isWatchPage()
-		/** @type {Number}  	Holds the previous player state. */
-		this.prevState = 0
-
-		this.bind()
+		this.waitForPlayer()
+		this.bindGeneral()
 	}
 
-	// StopAutoplay.VERSION = '2.0'
+	// StopAutoplay.VERSION = '3.0'
 
 	/**
-	 * Sets the player and adds listeners.
-	 *
-	 * @author 	Jacob Groß
-	 * @date   	2015-07-29
-	 */
-	StopAutoplay.prototype.initPlayer = function (player) {
-		console.log('update player', player)
-		this.player = player
-		this.player.addEventListener('onStateChange', 'playerStateChange')
-		this.player.addEventListener('onReady', 'onPlayerReady')
+	* Installs an observer which waits for video elements.
+	*
+	* @author 	Jacob Groß
+	* @date   	2015-08-25
+	*/
+	StopAutoplay.prototype.waitForPlayer = function () {
+		var observer = new MutationObserver(function (mutations) {
+			Object.keys(mutations).map(function (key) {
+				var mutation = mutations[key].addedNodes
+				for (var i = 0; i < mutation.length; i++) {
+					if (mutation[i].nodeName !== 'VIDEO') continue
+
+						console.log('mutation', mutation[i])
+
+					observer.disconnect() // waiting is over
+					return this.bindPlayer(mutation[i])
+				}
+			}.bind(this))
+		}.bind(this))
+		observer.observe(document, { childList: true, subtree: true })
 	}
 
 	/**
-	 * Binds event handlers.
-	 *
-	 * @author 	Jacob Groß
-	 * @date   	2015-07-29
-	 */
-	StopAutoplay.prototype.bind = function () {
-		// wait for youtube
+	* Binds player specific events.
+	*
+	* @author 	Jacob Groß
+	* @date   	2015-08-25
+	* @param  	{Object}   	player
+	*/
+	StopAutoplay.prototype.bindPlayer = function (player) {
+		console.log('binding', player)
+
+		if (player.readyState > 1) {
+			this.stopAutoplay(player)
+		}
+
+		player.addEventListener('canplay', this.stopAutoplay.bind(this, player))
+	}
+
+
+	/**
+	* Binds non /watch / channel specific event handlers.
+	*
+	* @author 	Jacob Groß
+	* @date   	2015-08-25
+	*/
+	StopAutoplay.prototype.bindGeneral = function () {
+		// safety, if there is any other extension for example.
 		var original = window.onYouTubePlayerReady
 
-		/** Called upon /watch player init */
+		/** Stops videos on channels. */
 		window.onYouTubePlayerReady = function (player) {
-			console.log('player ready', player, player.getPlayerState())
+			console.log('player ready', player, player.getPlayerState(), player.getCurrentTime())
 
-			this.initPlayer(player)
-			this.stop()
+			this.stopAutoplay(player)
+
+			console.log(player.getCurrentTime())
 
 			if (original) original()
 		}.bind(this)
-
-		/** Called whenever the player is ready for the first time (usually page load, or channel player init)*/
-		window.onPlayerReady = function (player) {
-			console.log('rdy', player, player.getPlayerState())
-			this.stop()
-		}.bind(this)
-
-		/** Called whenever the player changes its state. */
-		window.playerStateChange = function (state) {
-			if (!this.prevState) return // prevent stopping when manually clicking the video timeline
-			if (this.prevState === 3 && state === 1) {
-				this.stop()
-				this.prevState = 0 // prevent stopping when manually clicking the video timeline
-				return
-			}
-			this.prevState = state
-			console.log('state change', state)
-		}.bind(this)
-
-		/** Called whenever a page transition is done. */
-		window.addEventListener('spfdone', function (e) {
-			console.log('spfdone', e.detail.url)
-			this.prevState = 1 // activate playerStateChange
-
-			if (!this.isWatch && this.isWatchPage()) {
-				this.initPlayer(document.getElementById('movie_player'))
-				this.isWatch = true
-				return
-			}
-			if (this.isChannelPage())
-				this.isWatch = false
-		}.bind(this))
-	}
+}
 
 	/**
-	 * Stops the player.
-	 *
-	 * @author 	Jacob Groß
-	 * @date   	2015-07-29
-	 */
-	StopAutoplay.prototype.stop = function () {
+	* Stops the player, when the tab has focus.
+	*
+	* @author 	Jacob Groß
+	* @date   	2015-07-29
+	*/
+	StopAutoplay.prototype.stopAutoplay = function (player) {
+		console.log('stopAutoplay')
 		if (!document.hasFocus()) {
-			this._pause()
+			this._pause(player)
 		}
 	}
 
 	/**
-	 * Issues the pause command on the player element.
-	 *
-	 * @author 	Jacob Groß
-	 * @date   	2015-07-07
-	 */
-	StopAutoplay.prototype._pause = function () {
+	* Issues the pause command on the player element.
+	*
+	* @author 	Jacob Groß
+	* @date   	2015-07-07
+	*/
+	StopAutoplay.prototype._pause = function (player) {
 		console.log('pause')
-		this.player.pauseVideo()
+		if (player.pause)
+			return player.pause()
+		player.pauseVideo()
 	}
 
 	/**
-	 * Issues the play command on the player element.
-	 *
-	 * @author 	Jacob Groß
-	 * @date   	2015-07-07
-	 */
-	StopAutoplay.prototype._play = function () {
+	* Issues the play command on the player element.
+	*
+	* @author 	Jacob Groß
+	* @date   	2015-07-07
+	*/
+	StopAutoplay.prototype._play = function (player) {
 		console.log('play')
-		this.player.playVideo()
-	}
-
-	/**
-	 * Whether the current page is a main video.
-	 *
-	 * @author 	Jacob Groß
-	 * @date   	2015-07-07
-	 * @return 	{Boolean}
-	 */
-	StopAutoplay.prototype.isWatchPage = function () {
-		return location.pathname === '/watch' && location.search.indexOf('list=') === -1 // Playlist
-	}
-
-	/**
-	 * Whether the current page is a channel page.
-	 *
-	 * @author 	Jacob Groß
-	 * @date   	2015-07-15
-	 * @return 	{Boolean}
-	 */
-	StopAutoplay.prototype.isChannelPage = function () {
-		return location.pathname.indexOf('/channel/') === -1 || location.pathname.indexOf('/user/') !== -1
+		if (player.play)
+			return player.play()
+		player.playVideo()
 	}
 
 	// start
