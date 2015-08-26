@@ -1,8 +1,7 @@
 +function (window) {
 	'use strict'
 
-	var document = window.document,
-		location = window.location
+	var document = window.document
 
 	/**
 	 * The constructor, binds and initializes vars.
@@ -17,6 +16,12 @@
 
 	// StopAutoplay.VERSION = '3.0'
 
+	/**
+	 * Installs an observer which waits for video elements.
+	 *
+	 * @author 	Jacob Groß
+	 * @date   	2015-08-25
+	 */
 	StopAutoplay.prototype.waitForPlayer = function () {
 		var observer = new MutationObserver(function (mutations) {
 			Object.keys(mutations).map(function (key) {
@@ -34,6 +39,13 @@
 		observer.observe(document, { childList: true, subtree: true })
 	}
 
+	/**
+	 * Binds player specific events.
+	 *
+	 * @author 	Jacob Groß
+	 * @date   	2015-08-25
+	 * @param  	{Object}   	player
+	 */
 	StopAutoplay.prototype.bindPlayer = function (player) {
 		console.log('binding', player)
 
@@ -68,15 +80,10 @@
 
 			if (original) original()
 		}.bind(this)
-
-		/** Called whenever a page transition is done. */
-		window.addEventListener('spfdone', function (e) {
-			console.log('spfdone', e.detail.url)
-		}.bind(this))
 	}
 
 	/**
-	 * Stops the player.
+	 * Stops the player, when the tab has focus.
 	 *
 	 * @author 	Jacob Groß
 	 * @date   	2015-07-29
