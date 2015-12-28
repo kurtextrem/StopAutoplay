@@ -17,7 +17,7 @@
 		"run_at": "document_start"
 	}],
 
-	"web_accessible_resources": ["main.js", "main-new.js"],
+	"web_accessible_resources": ["main.js"],
 
 	"options_page": "options.html",
 	"options_ui": {
