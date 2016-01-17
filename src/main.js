@@ -4,33 +4,31 @@
 	var document = window.document
 
 	/**
-	* The constructor, binds and initializes vars.
-	*
-	* @author 	Jacob Groß
-	* @date   	2015-07-07
-	*/
+	 * The constructor, binds and initializes vars.
+	 *
+	 * @author 	Jacob Groß
+	 * @date   	2015-07-07
+	 */
 	var StopAutoplay = function () {
 		this.waitForPlayer()
 		this.bindGeneral()
 	}
 
-	// StopAutoplay.VERSION = '3.0'
+	// StopAutoplay.VERSION = '3.01'
 
 	/**
-	* Installs an observer which waits for video elements.
-	*
-	* @author 	Jacob Groß
-	* @date   	2015-08-25
-	*/
+	 * Installs an observer which waits for video elements.
+	 *
+	 * @author 	Jacob Groß
+	 * @date   	2015-08-25
+	 */
 	StopAutoplay.prototype.waitForPlayer = function () {
 		var observer = new MutationObserver(function (mutations) {
 			Object.keys(mutations).map(function (key) {
 				var mutation = mutations[key].addedNodes
 				for (var i = 0; i < mutation.length; i++) {
 					if (mutation[i].nodeName !== 'VIDEO') continue
-
-						console.log('mutation', mutation[i])
-
+					console.log('mutation', mutation[i])
 					observer.disconnect() // waiting is over
 					return this.bindPlayer(mutation[i])
 				}
@@ -40,12 +38,12 @@
 	}
 
 	/**
-	* Binds player specific events.
-	*
-	* @author 	Jacob Groß
-	* @date   	2015-08-25
-	* @param  	{Object}   	player
-	*/
+	 * Binds player specific events.
+	 *
+	 * @author 	Jacob Groß
+	 * @date   	2015-08-25
+	 * @param  	{Object}   	player
+	 */
 	StopAutoplay.prototype.bindPlayer = function (player) {
 		console.log('binding', player)
 
@@ -58,11 +56,11 @@
 
 
 	/**
-	* Binds non /watch / channel specific event handlers.
-	*
-	* @author 	Jacob Groß
-	* @date   	2015-08-25
-	*/
+	 * Binds non /watch / channel specific event handlers.
+	 *
+	 * @author 	Jacob Groß
+	 * @date   	2015-08-25
+	 */
 	StopAutoplay.prototype.bindGeneral = function () {
 		// safety, if there is any other extension for example.
 		var original = window.onYouTubePlayerReady
@@ -77,14 +75,14 @@
 
 			if (original) original()
 		}.bind(this)
-}
+	}
 
 	/**
-	* Stops the player, when the tab has focus.
-	*
-	* @author 	Jacob Groß
-	* @date   	2015-07-29
-	*/
+	 * Stops the player, when the tab has focus.
+	 *
+	 * @author 	Jacob Groß
+	 * @date   	2015-07-29
+	 */
 	StopAutoplay.prototype.stopAutoplay = function (player) {
 		console.log('stopAutoplay')
 		if (!document.hasFocus()) {
@@ -93,11 +91,11 @@
 	}
 
 	/**
-	* Issues the pause command on the player element.
-	*
-	* @author 	Jacob Groß
-	* @date   	2015-07-07
-	*/
+	 * Issues the pause command on the player element.
+	 *
+	 * @author 	Jacob Groß
+	 * @date   	2015-07-07
+	 */
 	StopAutoplay.prototype._pause = function (player) {
 		console.log('pause')
 		if (player.pause)
@@ -105,21 +103,11 @@
 		player.pauseVideo()
 	}
 
-	/**
-	* Issues the play command on the player element.
-	*
-	* @author 	Jacob Groß
-	* @date   	2015-07-07
-	*/
-	StopAutoplay.prototype._play = function (player) {
-		console.log('play')
-		if (player.play)
-			return player.play()
-		player.playVideo()
-	}
-
 	// start
 	new StopAutoplay()
 }(window);
 
 console.log('loaded')
+
+// speedier .bind
++function(n,t){"use strict";var e=n.bind;t.defineProperty(n,"bind",{value:function(n){var t=this;return 1===arguments.length?function(){return t.apply(n,arguments)}:e.apply(t,arguments)}})}(Function.prototype,Object);

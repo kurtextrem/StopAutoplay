@@ -1,6 +1,6 @@
 /* jshint node: true, devel: true */
 var shell = require('shelljs'),
-zipdir = require('zip-dir');
+	zipdir = require('zip-dir');
 
 +function () {
 	'use strict'

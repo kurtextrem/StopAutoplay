@@ -1,9 +1,9 @@
 {
 	"name": "Stop Autoplay for Youtube\u2122",
-	"version": "3.0",
+	"version": "3.0.1",
 	"manifest_version": 2,
 
-	"description": "Eases your YouTube\u2122 experience through stopping the autoplay. This is the version without the 'Extended' features.",
+	"description": "Eases your YouTube\u2122 experience through stopping the autoplay. This version doesn't automatically start Videos.",
 	"icons": {
 		"128": "icon128.png",
 		"16": "icon16.png",

@@ -9,8 +9,8 @@
 	"scripts": {
 		"clean": "rimraf dist && mkdir dist",
 
-		"js": "uglifyjs src/inject.js > dist/inject.js && uglifyjs -c drop_console=true src/main.js > dist/main.js",
-		"json": "json-minify src/manifest.json > dist/manifest.json",
+		"js": "uglifyjs src/inject.js > dist/inject.js && uglifyjs drop_console=true src/main.js > dist/main.js",
+		"json": "cp src/manifest.json dist/manifest.json",
 
 		"copy": "node build.js copy",
 

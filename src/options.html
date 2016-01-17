@@ -1,0 +1,26 @@
+<!doctype html>
+<html>
+<head>
+	<title>Options</title>
+	<style>
+		body {
+			min-width: 405px;
+		}
+		#warning {
+			display: none;
+		}
+
+		#trigger:checked ~ #warning {
+			display: block;
+		}
+	</style>
+</head>
+<body>
+	Automatically start the video when switching to the tab:&nbsp;&nbsp;<label><input type="radio" name="extended[]" checked>Yes</label>&nbsp;&nbsp;<input type="radio" name="extended[]" id="trigger"><label for="trigger">No</label>
+	<div id="warning">
+		<p>To keep the extension fast, there is no way to change this behaviour through options.</p>
+		<p>If you want the version <b>without the automatic start</b>, install <a href="https://chrome.google.com/webstore/detail/stop-autoplay-for-youtube/figkapeodjhdgnpiamleongcmecfjccb">Stop Autoplay for Youtube&trade;</a>  or search manually in the Chrome Webstore (install the version without "Extended" in its name).</p>
+	</div>
+	<p>Any other problems? Report them <a href="https://github.com/kurtextrem/StopAutoplay/issues">here</a>.</p>
+</body>
+</html>
