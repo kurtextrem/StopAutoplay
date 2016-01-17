@@ -14,28 +14,29 @@
 		this.bindGeneral()
 	}
 
-	// StopAutoplay.VERSION = '3.0'
+	// StopAutoplay.VERSION = '3.01'
 
 	/**
 	 * Installs an observer which waits for video elements.
 	 *
 	 * @author 	Jacob Groß
-	 * @date   	2015-08-25
+	 * @date   	2016-01-17
 	 */
 	StopAutoplay.prototype.waitForPlayer = function () {
+		var that = this
 		var observer = new MutationObserver(function (mutations) {
-			Object.keys(mutations).map(function (key) {
-				var mutation = mutations[key].addedNodes
-				for (var i = 0; i < mutation.length; i++) {
-					if (mutation[i].nodeName !== 'VIDEO') continue
+			for (var i = 0; i < mutations.length; i++) {
+				var mutation = mutations[i].addedNodes
+				for (var x = 0; x < mutation.length; x++) {
+					if (mutation[x].nodeName !== 'VIDEO' && mutation[x].nodeName !== 'OBJECT') continue
 
-					console.log('mutation', mutation[i])
+					console.log('mutation', mutation[x])
 
 					observer.disconnect() // waiting is over
-					return this.bindPlayer(mutation[i])
+					return that.bindPlayer(mutation[x])
 				}
-			}.bind(this))
-		}.bind(this))
+			}
+		})
 		observer.observe(document, { childList: true, subtree: true })
 	}
 
@@ -49,6 +50,7 @@
 	StopAutoplay.prototype.bindPlayer = function (player) {
 		console.log('binding', player)
 
+		// while buffering
 		if (player.readyState > 1) {
 			this.stopAutoplay(player)
 		}
@@ -136,9 +138,6 @@
 
 	// start
 	new StopAutoplay()
+
+	console.log('loaded')
 }(window);
-
-console.log('loaded')
-
-// speedier .bind
-+function(n,t){"use strict";var e=n.bind;t.defineProperty(n,"bind",{value:function(n){var t=this;return 1===arguments.length?function(){return t.apply(n,arguments)}:e.apply(t,arguments)}})}(Function.prototype,Object);
