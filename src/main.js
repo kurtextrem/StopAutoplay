@@ -30,8 +30,6 @@
 				for (var x = 0; x < mutation.length; x++) {
 					if (mutation[x].nodeName !== 'VIDEO' && mutation[x].nodeName !== 'OBJECT') continue
 
-					console.log('mutation', mutation[x])
-
 					observer.disconnect() // waiting is over
 					return that.bindPlayer(mutation[x])
 				}
@@ -48,14 +46,12 @@
 	 * @param  	{Object}   	player
 	 */
 	StopAutoplay.prototype.bindPlayer = function (player) {
-		console.log('binding', player)
-
 		// while buffering
 		if (player.readyState > 1) {
 			this.stopAutoplay(player)
 		}
 
-		player.addEventListener('canplay', this.stopAutoplay.bind(this, player))
+		player.addEventListener('canplaythrough', this.stopAutoplay.bind(this, player))
 	}
 
 
@@ -71,11 +67,7 @@
 
 		/** Stops videos on channels. */
 		window.onYouTubePlayerReady = function (player) {
-			console.log('player ready', player, player.getPlayerState(), player.getCurrentTime())
-
 			this.stopAutoplay(player)
-
-			console.log(player.getCurrentTime())
 
 			if (original) original()
 		}.bind(this)
@@ -88,8 +80,9 @@
 	 * @date   	2015-07-29
 	 */
 	StopAutoplay.prototype.stopAutoplay = function (player) {
-		console.log('stopAutoplay')
-		this._pause(player)
+		if (!document.hasFocus()) {
+			this._pause(player)
+		}
 	}
 
 	/**
@@ -99,7 +92,6 @@
 	 * @date   	2015-07-07
 	 */
 	StopAutoplay.prototype._pause = function (player) {
-		console.log('pause')
 		if (player.pause)
 			return player.pause()
 		player.pauseVideo()
@@ -107,6 +99,4 @@
 
 	// start
 	new StopAutoplay()
-
-	console.log('loaded')
 }(window);
