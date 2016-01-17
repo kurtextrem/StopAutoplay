@@ -80,9 +80,7 @@
 	 * @date   	2015-07-29
 	 */
 	StopAutoplay.prototype.stopAutoplay = function (player) {
-		if (!document.hasFocus()) {
-			this._pause(player)
-		}
+		this._pause(player)
 	}
 
 	/**
