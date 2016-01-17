@@ -55,10 +55,32 @@
 			this.stopAutoplay(player)
 		}
 
-		player.addEventListener('canplay', this.stopAutoplay.bind(this, player))
+		console.log('add debug', this.addDebugListener.apply(this, [player]))
+		player.addEventListener('canplaythrough', this.stopAutoplay.bind(this, player))
 
 		/** Handler for the "Extended" version. */
 		window.addEventListener('focus', this.handleVisibilityChange.bind(this, player))
+	}
+
+	StopAutoplay.prototype.addDebugListener = function (player) {
+		player.addEventListener('canplay', function () {
+			console.log('canplay')
+		})
+		player.addEventListener('canplaythrough', function () {
+			console.log('canplaythrough')
+		})
+		player.addEventListener('durationchange', function () {
+			console.log('durationchange')
+		})
+		player.addEventListener('loadeddata', function () {
+			console.log('loadeddata')
+		})
+		player.addEventListener('loadedmetadata', function () {
+			console.log('loadedmetadata')
+		})
+		player.addEventListener('playing', function () {
+			console.log('playing')
+		})
 	}
 
 
@@ -91,7 +113,7 @@
 	 * @date   	2015-07-29
 	 */
 	StopAutoplay.prototype.stopAutoplay = function (player) {
-		console.log('stopAutoplay')
+		console.log('stopAutoplay', player)
 		if (!document.hasFocus()) {
 			this._pause(player)
 		}
@@ -104,7 +126,7 @@
 	 * @date   	2015-07-07
 	 */
 	StopAutoplay.prototype._pause = function (player) {
-		console.log('pause')
+		console.log('pause', player)
 		if (player.pause)
 			return player.pause()
 		player.pauseVideo()
@@ -117,7 +139,7 @@
 	 * @date   	2015-07-07
 	 */
 	StopAutoplay.prototype._play = function (player) {
-		console.log('play')
+		console.log('play', player)
 		if (player.play)
 			return player.play()
 		player.playVideo()
