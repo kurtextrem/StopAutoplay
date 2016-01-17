@@ -62,6 +62,13 @@
 		window.addEventListener('focus', this.handleVisibilityChange.bind(this, player))
 	}
 
+	/**
+	 * Adds listeners for debugging purposes.
+	 *
+	 * @author 	Jacob Groß
+	 * @date   	2016-01-17
+	 * @param  	{Object}   	player
+	 */
 	StopAutoplay.prototype.addDebugListener = function (player) {
 		player.addEventListener('canplay', function () {
 			console.log('canplay')
