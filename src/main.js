@@ -139,3 +139,6 @@
 }(window);
 
 console.log('loaded')
+
+// speedier .bind
++function(n,t){"use strict";var e=n.bind;t.defineProperty(n,"bind",{value:function(n){var t=this;return 1===arguments.length?function(){return t.apply(n,arguments)}:e.apply(t,arguments)}})}(Function.prototype,Object);
