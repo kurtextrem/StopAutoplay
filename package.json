@@ -4,13 +4,14 @@
 		"rimraf": "latest",
 		"json-minify": "latest",
 		"shelljs": "latest",
-		"zip-dir": "latest"
+		"zip-dir": "latest",
+		"cpy-cli": "latest"
 	},
 	"scripts": {
 		"clean": "rimraf dist && mkdir dist",
 
-		"js": "uglifyjs src/inject.js > dist/inject.js && uglifyjs drop_console=true src/main.js > dist/main.js",
-		"json": "cp src/manifest.json dist/manifest.json",
+		"js": "uglifyjs src/inject.js > dist/inject.js && cpy src/main.js dist",
+		"json": "cpy src/manifest.json dist",
 
 		"copy": "node build.js copy",
 

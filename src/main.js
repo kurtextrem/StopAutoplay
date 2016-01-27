@@ -14,7 +14,7 @@
 		this.bindGeneral()
 	}
 
-	// StopAutoplay.VERSION = '3.01'
+	// StopAutoplay.VERSION = '3.011'
 
 	/**
 	 * Installs an observer which waits for video elements.
