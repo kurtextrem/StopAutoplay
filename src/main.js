@@ -96,26 +96,30 @@
 	function bindPlayer(player) {
 		console.log('binding', player)
 
-		// mute ad, play ad (real video player is inserted afterwards, so muting here doesn't affect the next video)
-		var parent = player.parentElement.parentElement
-		console.log('parent', parent)
-		if (parent.classList.contains('ad-created')) {
+		var ad = player.parentNode.parentNode
+		console.log('parent', ad)
+		if (ad.classList.contains('ad-created')) {
 			console.log('ad muted')
-			parent.getElementsByClassName('ytp-mute-button')[0].click()
+			// ignored when the real video starts playing
+			player.muted = true
+			ad = true
 		}
 
 		// don't pause while buffering
-		if (player.readyState > 1) {
+		if (player.readyState > 1 && !ad) {
 			stopAutoplay(player)
 		}
 
 		console.log('add debug', addDebugListener.apply(null, [player]))
 
-		player.addEventListener('canplaythrough', stopAutoplay.bind(null, player))
+		player.addEventListener('canplaythrough', function canplaythrough() {
+			if (!ad.classList.contains('ad-created'))
+				stopAutoplay(player)
+		})
 		// YouTube experiment which sets a timeout and afterwards plays the video
-		player.addEventListener('playing', function self() {
+		player.addEventListener('playing', function playing() {
 			stopAutoplay(player)
-			player.removeEventListener('playing', self)
+			player.removeEventListener('playing', playing)
 		})
 
 		/** Handler for the "Extended" version. */
@@ -167,7 +171,7 @@
 		// safety, if there is any other extension for example.
 		var original = window.onYouTubePlayerReady
 
-		/** Stops videos on channels. */
+		/** Stops videos on channels; only fired once when a player is ready (e.g. doesn't fire on AJAX navigation watch -> watch) */
 		window.onYouTubePlayerReady = function (player) {
 			console.log('player ready', player, player.getPlayerState(), player.getCurrentTime())
 
