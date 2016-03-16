@@ -57,6 +57,8 @@
 
 		console.log('add debug', this.addDebugListener.apply(this, [player]))
 		player.addEventListener('canplaythrough', this.stopAutoplay.bind(this, player))
+		// YouTube experiment which sets a timeout and afterwards plays the video
+		player.addEventListener('playing', this.stopAutoplay.bind(this, player))
 
 		/** Handler for the "Extended" version. */
 		window.addEventListener('focus', this.handleVisibilityChange.bind(this, player))
