@@ -104,14 +104,13 @@
 
 		console.log('add debug', addDebugListener.apply(null, [player]))
 
-		player.addEventListener('canplaythrough', function canplaythrough() {
-			if (!ad.classList.contains('ad-created'))
-				stopAutoplay(player)
-		})
+		player.addEventListener('canplaythrough', stopAutoplay.bind(null, player))
 		// YouTube experiment which sets a timeout and afterwards plays the video
+		var i = 0
 		player.addEventListener('playing', function playing() {
 			stopAutoplay(player)
-			player.removeEventListener('playing', playing)
+			if (++i === 2)
+				player.removeEventListener('playing', playing)
 		})
 
 		/** Handler for the "Extended" version. */
@@ -167,9 +166,10 @@
 		window.onYouTubePlayerReady = function (player) {
 			console.log('player ready', player, player.getPlayerState(), player.getCurrentTime())
 
-			stopAutoplay(player)
-
-			console.log(player.getCurrentTime())
+			if (player.getPlayerState() !== 3) {
+				stopAutoplay(player)
+				console.log(player.getCurrentTime())
+			}
 
 			if (original) original()
 		}.bind(this)
