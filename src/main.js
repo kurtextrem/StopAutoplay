@@ -52,6 +52,7 @@
 	 * @date   	2015-07-29
 	 */
 	function handleVisibilityChange(player) {
+		console.log('handleVisibilityChange')
 		window.setTimeout(function () {
 			if (!document.hidden)
 				_play(player)
@@ -96,17 +97,8 @@
 	function bindPlayer(player) {
 		console.log('binding', player)
 
-		var ad = player.parentNode.parentNode
-		console.log('parent', ad)
-		if (ad.classList.contains('ad-created')) {
-			console.log('ad muted')
-			// ignored when the real video starts playing
-			player.muted = true
-			ad = true
-		}
-
 		// don't pause while buffering
-		if (player.readyState > 1 && !ad) {
+		if (player.readyState > 1) {
 			stopAutoplay(player)
 		}
 
