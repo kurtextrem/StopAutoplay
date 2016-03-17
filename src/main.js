@@ -52,7 +52,9 @@
 	 * @date   	2015-07-29
 	 */
 	function handleVisibilityChange(player) {
-		console.log('handleVisibilityChange')
+		console.log('handleVisibilityChange', player, player.readyState)
+		// debugger
+		if (player.readyState < 1) return // bail out, if event triggered too early
 		window.setTimeout(function () {
 			if (!document.hidden)
 				_play(player)
