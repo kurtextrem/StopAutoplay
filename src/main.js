@@ -100,20 +100,21 @@
 		console.log('binding', player)
 
 		// don't pause while buffering
+		console.log(player.readyState, player.networkState)
 		if (player.readyState > 1) {
 			stopAutoplay(player)
 		}
 
 		console.log('add debug', addDebugListener.apply(null, [player]))
 
-		player.addEventListener('canplaythrough', stopAutoplay.bind(null, player))
+		player.addEventListener('canplaythrough', stopAutoplay.bind(null, player), { passive: true })
 		// YouTube experiment which sets a timeout and afterwards plays the video
 		var i = 0
 		player.addEventListener('playing', function playing() {
 			stopAutoplay(player)
 			if (++i === 2)
-				player.removeEventListener('playing', playing)
-		})
+				player.removeEventListener('playing', playing, { passive: true })
+		}, { passive: true })
 
 		/** Handler for the "Extended" version. */
 		if (extended)
