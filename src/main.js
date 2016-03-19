@@ -53,8 +53,7 @@
 	 */
 	function handleVisibilityChange(player) {
 		console.log('handleVisibilityChange', player, player.readyState)
-		// debugger
-		if (player.readyState < 1) return // bail out, if event triggered too early
+
 		window.setTimeout(function () {
 			if (!document.hidden)
 				_play(player)
@@ -107,7 +106,12 @@
 
 		console.log('add debug', addDebugListener.apply(null, [player]))
 
-		player.addEventListener('canplaythrough', stopAutoplay.bind(null, player), { passive: true })
+		var x = 0
+		player.addEventListener('canplaythrough', function () {
+			stopAutoplay(player)
+			if (++x === 1 && player.currentTime < 2) // prevent dead-lock; don't change the time if it has been forwarded by YouTube
+				player.currentTime = 0 // start the video in the latest dev
+		}, { passive: true })
 		// YouTube experiment which sets a timeout and afterwards plays the video
 		var i = 0
 		player.addEventListener('playing', function playing() {
