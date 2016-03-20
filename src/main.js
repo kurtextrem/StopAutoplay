@@ -53,7 +53,7 @@
 	 */
 	function handleVisibilityChange(player) {
 		console.log('handleVisibilityChange', player, player.readyState)
-
+		// if (player.readyState < 1) return; // bail out, if event triggered too early
 		window.setTimeout(function () {
 			if (!document.hidden)
 				_play(player)
@@ -106,23 +106,21 @@
 
 		console.log('add debug', addDebugListener.apply(null, [player]))
 
-		var x = 0
-		player.addEventListener('canplaythrough', function () {
-			stopAutoplay(player)
+		var x = 0, i = 0
+		player.addEventListener('canplaythrough', stopAutoplay.bind(null, player), { passive: true })
+		player.addEventListener('loadedmetadata', function () { // start the video in the latest dev
 			if (++x === 1 && player.currentTime < 2) // prevent dead-lock; don't change the time if it has been forwarded by YouTube
-				player.currentTime = 0 // start the video in the latest dev
+				player.currentTime = 0
 		}, { passive: true })
-		// YouTube experiment which sets a timeout and afterwards plays the video
-		var i = 0
 		player.addEventListener('playing', function playing() {
 			stopAutoplay(player)
-			if (++i === 2)
+			if (++i === 2) // YouTube experiment which sets a timeout and afterwards plays the video
 				player.removeEventListener('playing', playing, { passive: true })
 		}, { passive: true })
 
 		/** Handler for the "Extended" version. */
 		if (extended)
-			window.addEventListener('focus', handleVisibilityChange.bind(null, player))
+			window.addEventListener('focus', handleVisibilityChange.bind(null, player), { passive: true })
 	}
 
 	/**
