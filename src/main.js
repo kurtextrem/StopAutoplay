@@ -88,6 +88,8 @@
 		})
 	}
 
+	var passive = { passive: true }
+
 	/**
 	 * Binds player specific events.
 	 *
@@ -107,20 +109,30 @@
 		console.log('add debug', addDebugListener.apply(null, [player]))
 
 		var x = 0, i = 0
-		player.addEventListener('canplaythrough', stopAutoplay.bind(null, player), { passive: true })
-		player.addEventListener('loadedmetadata', function () { // start the video in the latest dev
+
+		// main stop function
+		player.addEventListener('canplaythrough', stopAutoplay.bind(null, player), passive)
+
+		// start the video in the latest dev
+		player.addEventListener('loadedmetadata', function () {
 			if (++x === 1 && player.currentTime < 2) // prevent dead-lock; don't change the time if it has been forwarded by YouTube
 				player.currentTime = 0
-		}, { passive: true })
+		}, passive)
+
+		// YouTube experiment which sets a timeout and afterwards plays the video
 		player.addEventListener('playing', function playing() {
 			stopAutoplay(player)
-			if (++i === 2) // YouTube experiment which sets a timeout and afterwards plays the video
-				player.removeEventListener('playing', playing, { passive: true })
-		}, { passive: true })
+			if (++i === 2)
+				player.removeEventListener('playing', playing, passive)
+		}, passive)
+
+		player.addEventListener('loadeddata', function () {
+			x = i = 0 // reset; probably watch -> watch navigation
+		}, passive)
 
 		/** Handler for the "Extended" version. */
 		if (extended)
-			window.addEventListener('focus', handleVisibilityChange.bind(null, player), { passive: true })
+			window.addEventListener('focus', handleVisibilityChange.bind(null, player), passive)
 	}
 
 	/**
