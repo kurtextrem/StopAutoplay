@@ -11,6 +11,7 @@
 	 *
 	 * @author 	Jacob Groß
 	 * @date   	2015-07-07
+	 * @param  	{Object}   	player
 	 */
 	function _pause(player) {
 		console.log('pause', player)
@@ -24,6 +25,7 @@
 	 *
 	 * @author 	Jacob Groß
 	 * @date   	2015-07-29
+	 * @param  	{Object}   	player
 	 */
 	function stopAutoplay(player) {
 		console.log('stopAutoplay', player)
@@ -37,6 +39,7 @@
 	 *
 	 * @author 	Jacob Groß
 	 * @date   	2015-07-07
+	 * @param  	{Object}   	player
 	 */
 	function _play(player) {
 		console.log('play', player)
@@ -46,10 +49,11 @@
 	}
 
 	/**
-	 * Event handler when the tab gets visible.
+	 * Event handler when the tab becomes visible.
 	 *
 	 * @author 	Jacob Groß
 	 * @date   	2015-07-29
+	 * @param  	{Object}   	player
 	 */
 	function handleVisibilityChange(player) {
 		console.log('handleVisibilityChange', player, player.readyState)
@@ -108,26 +112,31 @@
 
 		console.log('add debug', addDebugListener.apply(null, [player]))
 
-		var x = 0, i = 0
-
-		// main stop function
+		/**main stop function */
 		player.addEventListener('canplaythrough', stopAutoplay.bind(null, player), passive)
 
-		// start the video in the latest dev
+		/** start the video in the latest dev (.play() returns a promise now and throws an Exception if the 'pause' method has been called while trying to play.
+		var x = 0
 		player.addEventListener('loadedmetadata', function () {
-			if (++x === 1 && player.currentTime < 2) // prevent dead-lock; don't change the time if it has been forwarded by YouTube
+			if (++x === 1 && player.currentTime < 2) { // prevent dead-lock; don't change the time if it has been forwarded by YouTube
 				player.currentTime = 0
-		}, passive)
+				console.log('time reset')
+			}
+		}, passive)*/
 
-		// YouTube experiment which sets a timeout and afterwards plays the video
+		/** YouTube experiment which sets a timeout and afterwards plays the video */
+		var i = 0
 		player.addEventListener('playing', function playing() {
+			console.log('stop playing')
+
 			stopAutoplay(player)
 			if (++i === 2)
 				player.removeEventListener('playing', playing, passive)
 		}, passive)
 
 		player.addEventListener('loadeddata', function () {
-			x = i = 0 // reset; probably watch -> watch navigation
+			/*x = */i = 0 // reset; probably watch -> watch navigation
+			console.log('reset counter')
 		}, passive)
 
 		/** Handler for the "Extended" version. */
@@ -151,6 +160,7 @@
 	 *
 	 * @author 	Jacob Groß
 	 * @date   	2016-01-17
+	 * @return  	{Object}   	player 		Player DOM Node
 	 */
 	StopAutoplay.prototype.waitForPlayer = function () {
 		var observer = new MutationObserver(function (mutations) {
@@ -179,11 +189,18 @@
 		// safety, if there is any other extension for example.
 		var original = window.onYouTubePlayerReady
 
-		/** Stops videos on channels; only fired once when a player is ready (e.g. doesn't fire on AJAX navigation watch -> watch) */
+		/**
+		 * Stops videos on channels.
+		 * Only fired once when a player is ready (e.g. doesn't fire on AJAX navigation /watch -> /watch)
+		 *
+		 * @author 	Jacob Groß
+		 * @date   	2016-03-22
+		 * @param 	{Object}    	player 		The Youtube Player API Object
+		 */
 		window.onYouTubePlayerReady = function (player) {
 			console.log('player ready', player, player.getPlayerState(), player.getCurrentTime())
 
-			if (player.getPlayerState() !== 3) {
+			if (player.getPlayerState() !== 3) { // don't pause too early
 				stopAutoplay(player)
 				console.log(player.getCurrentTime())
 			}
