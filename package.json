@@ -10,8 +10,8 @@
 	"scripts": {
 		"clean": "rimraf dist && mkdir dist",
 
-		"js": "uglifyjs src/inject.js > dist/inject.js && cpy src/main.js dist",
-		"json": "cpy src/manifest.json dist",
+		"js": "uglifyjs --screw-ie8 src/inject.js > dist/inject.js & uglifyjs --screw-ie8 -c drop_console=true src/main.js > dist/main.js",
+		"json": "json-minify src/manifest.json > dist/manifest.json",
 
 		"copy": "node build.js copy",
 
