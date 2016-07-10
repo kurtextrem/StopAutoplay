@@ -2,7 +2,7 @@
 	'use strict'
 
 	var document = window.document,
-		extended = true
+		extended = false
 
 	/**
 	 * Non-Extended: When a tab is opened as background tab for the first time, the video gets loaded when the tab gets focused
