@@ -2,7 +2,7 @@
 var shell = require('shelljs'),
 	zipdir = require('zip-dir');
 
-+function () {
+!function () {
 	'use strict'
 
 	var Build = function () {
@@ -46,4 +46,4 @@ var shell = require('shelljs'),
 	}
 
 	new Build()
-}();
+}()
