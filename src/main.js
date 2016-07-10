@@ -28,8 +28,9 @@
 	 * @param  	{Object}   	player
 	 */
 	function stopAutoplay(player) {
-		console.log('stopAutoplay', player)
-		if (!document.hasFocus()) {
+		console.log('stopAutoplay', player, focusStop)
+		if (!document.hasFocus() || focusStop) {
+			focusStop = false
 			_pause(player)
 		}
 	}
