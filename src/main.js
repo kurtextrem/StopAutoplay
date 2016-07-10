@@ -4,7 +4,13 @@
 	var document = window.document,
 		extended = false
 
-	// StopAutoplay.VERSION = '4.00'
+	/**
+	 * Non-Extended: When a tab is opened as background tab for the first time, the video gets loaded when the tab gets focused
+	 * @type {boolean}
+	 */
+	var focusStop = !extended
+
+	// StopAutoplay.VERSION = '4.0.1'
 
 	/**
 	 * Issues the pause command on the player element.
@@ -28,8 +34,9 @@
 	 * @param  	{Object}   	player
 	 */
 	function stopAutoplay(player) {
-		console.log('stopAutoplay', player)
-		if (!document.hasFocus()) {
+		console.log('stopAutoplay', player, focusStop)
+		if (!document.hasFocus() || focusStop) {
+			focusStop = false
 			_pause(player)
 		}
 	}
@@ -87,8 +94,32 @@
 		player.addEventListener('loadedmetadata', function () {
 			console.log('loadedmetadata')
 		})
+		player.addEventListener('loadstart', function () {
+			console.log('loadstart')
+		})
 		player.addEventListener('playing', function () {
 			console.log('playing')
+		})
+		player.addEventListener('play', function () {
+			console.log('play')
+		})
+		player.addEventListener('waiting', function () {
+			console.log('waiting')
+		})
+		player.addEventListener('stalled', function () {
+			// console.log('stalled')
+		})
+		player.addEventListener('seeking', function () {
+			console.log('seeking')
+		})
+		player.addEventListener('seeked', function () {
+			console.log('seeked')
+		})
+		player.addEventListener('timeupdate', function () {
+			// console.log('timeupdate')
+		})
+		window.addEventListener('focus', function () { // tells me the timestamp I've focused
+			console.log('now')
 		})
 	}
 
@@ -112,19 +143,10 @@
 
 		console.log('add debug', addDebugListener.apply(null, [player]))
 
-		/**main stop function */
+		/**Main stop function */
 		player.addEventListener('canplaythrough', stopAutoplay.bind(null, player), passive)
 
-		/** start the video in the latest dev (.play() returns a promise now and throws an Exception if the 'pause' method has been called while trying to play.
-		var x = 0
-		player.addEventListener('loadedmetadata', function () {
-			if (++x === 1 && player.currentTime < 2) { // prevent dead-lock; don't change the time if it has been forwarded by YouTube
-				player.currentTime = 0
-				console.log('time reset')
-			}
-		}, passive)*/
-
-		/** YouTube experiment which sets a timeout and afterwards plays the video */
+		/** Stops on watch -> watch navigation */
 		var i = 0
 		player.addEventListener('playing', function playing() {
 			console.log('stop playing')
@@ -135,8 +157,9 @@
 		}, passive)
 
 		player.addEventListener('loadeddata', function () {
-			/*x = */i = 0 // reset; probably watch -> watch navigation
 			console.log('reset counter')
+
+			i = 0 // reset; watch -> watch navigation
 		}, passive)
 
 		/** Handler for the "Extended" version. */
