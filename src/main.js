@@ -10,7 +10,7 @@
 	 */
 	var focusStop = !extended
 
-	// StopAutoplay.VERSION = '4.0.1'
+	/** @version 4.0.3 **/
 
 	/**
 	 * Issues the pause command on the player element.
@@ -123,8 +123,6 @@
 		})
 	}
 
-	var passive = { passive: true }
-
 	/**
 	 * Binds player specific events.
 	 *
@@ -144,7 +142,7 @@
 		console.log('add debug', addDebugListener.apply(null, [player]))
 
 		/**Main stop function */
-		player.addEventListener('canplaythrough', stopAutoplay.bind(null, player), passive)
+		player.addEventListener('canplaythrough', stopAutoplay.bind(null, player))
 
 		/** Stops on watch -> watch navigation */
 		var i = 0
@@ -153,18 +151,18 @@
 
 			stopAutoplay(player)
 			if (++i === 2)
-				player.removeEventListener('playing', playing, passive)
-		}, passive)
+				player.removeEventListener('playing', playing)
+		})
 
 		player.addEventListener('loadeddata', function () {
 			console.log('reset counter')
 
 			i = 0 // reset; watch -> watch navigation
-		}, passive)
+		})
 
 		/** Handler for the "Extended" version. */
 		if (extended)
-			window.addEventListener('focus', handleVisibilityChange.bind(null, player), passive)
+			window.addEventListener('focus', handleVisibilityChange.bind(null, player))
 	}
 
 	/**
