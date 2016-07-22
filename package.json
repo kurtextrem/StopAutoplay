@@ -1,10 +1,10 @@
 {
 	"devDependencies": {
-		"uglify-js": "latest",
-		"rimraf": "latest",
-		"json-minify": "latest",
-		"shelljs": "latest",
-		"zip-dir": "latest"
+		"uglify-js": "^2.7.0",
+		"rimraf": "^2.5.3",
+		"json-minify": "^1.0.0",
+		"shelljs": "^0.7.0",
+		"zip-dir": "^1.0.2"
 	},
 	"scripts": {
 		"clean": "rimraf dist && mkdir dist",
