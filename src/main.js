@@ -1,4 +1,4 @@
-!function (window) {
+(function (window) {
 	'use strict'
 
 	var document = window.document,
@@ -227,11 +227,11 @@
 			}
 
 			if (original) original()
-		}.bind(this)
+		}
 	}
 
 	// start
 	new StopAutoplay()
 
 	console.log('loaded')
-}(window);
+}(window));

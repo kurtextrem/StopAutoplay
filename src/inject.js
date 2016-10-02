@@ -5,7 +5,7 @@
  * @author 	Jacob Groß
  * @date   	2016-03-01
  */
-!function (document) {
+(function (document) {
 	'use strict'
 
 	var s = document.createElement('script')
@@ -14,4 +14,4 @@
 		this.parentNode.removeChild(this)
 	}
 	document.documentElement.appendChild(s)
-}(window.document);
+}(window.document));
