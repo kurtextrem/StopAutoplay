@@ -35,7 +35,7 @@
 	 */
 	function stopAutoplay(player) {
 		console.log('stopAutoplay', player, focusStop)
-		if (!document.hasFocus() || focusStop) {
+		if (!document.hasFocus() || focusStop || !player.loop) {
 			focusStop = false
 			_pause(player)
 		}
