@@ -1,16 +1,15 @@
-!function (window) {
+(function (window) {
 	'use strict'
 
+	/** @version 4.0.4 **/
 	var document = window.document,
 		extended = false
 
 	/**
-	 * Non-Extended: When a tab is opened as background tab for the first time, the video gets loaded when the tab gets focused
-	 * @type {boolean}
+	 * Non-Extended: When a tab has been opened as background tab for the first time, the video is loaded when the tab receives focus (Chrome native feature)
+	 * @type 	{boolean}
 	 */
 	var focusStop = !extended
-
-	// StopAutoplay.VERSION = '4.0.1'
 
 	/**
 	 * Issues the pause command on the player element.
@@ -27,15 +26,15 @@
 	}
 
 	/**
-	 * Stops the player, when the tab has focus.
+	 * Stops the player, when the tab has focus or looping is enabled.
 	 *
 	 * @author 	Jacob Groß
 	 * @date   	2015-07-29
 	 * @param  	{Object}   	player
 	 */
 	function stopAutoplay(player) {
-		console.log('stopAutoplay', player, focusStop)
-		if (!document.hasFocus() || focusStop) {
+		console.log('stopAutoplay', !player.loop, !document.hasFocus(), focusStop, player)
+		if (!player.loop && !document.hasFocus() || focusStop) {
 			focusStop = false
 			_pause(player)
 		}
@@ -119,11 +118,9 @@
 			// console.log('timeupdate')
 		})
 		window.addEventListener('focus', function () { // tells me the timestamp I've focused
-			console.log('now')
+			console.info('now')
 		})
 	}
-
-	var passive = { passive: true }
 
 	/**
 	 * Binds player specific events.
@@ -133,7 +130,7 @@
 	 * @param  	{Object}   	player
 	 */
 	function bindPlayer(player) {
-		console.log('binding', player)
+		console.info('binding', player)
 
 		// don't pause while buffering
 		console.log(player.readyState, player.networkState)
@@ -141,34 +138,34 @@
 			stopAutoplay(player)
 		}
 
-		console.log('add debug', addDebugListener.apply(null, [player]))
+		console.info('add debug', addDebugListener.apply(null, [player]))
 
 		/**Main stop function */
-		player.addEventListener('canplaythrough', stopAutoplay.bind(null, player), passive)
+		player.addEventListener('canplaythrough', stopAutoplay.bind(null, player))
 
 		/** Stops on watch -> watch navigation */
 		var i = 0
 		player.addEventListener('playing', function playing() {
-			console.log('stop playing')
+			console.log('stop on playing event')
 
 			stopAutoplay(player)
 			if (++i === 2)
-				player.removeEventListener('playing', playing, passive)
-		}, passive)
+				player.removeEventListener('playing', playing)
+		})
 
 		player.addEventListener('loadeddata', function () {
-			console.log('reset counter')
+			console.log('loadeddata -> reset counter')
 
 			i = 0 // reset; watch -> watch navigation
-		}, passive)
+		})
 
 		/** Handler for the "Extended" version. */
 		if (extended)
-			window.addEventListener('focus', handleVisibilityChange.bind(null, player), passive)
+			window.addEventListener('focus', handleVisibilityChange.bind(null, player))
 	}
 
 	/**
-	 * The constructor, binds and initializes vars.
+	 * The constructor binds and initializes vars.
 	 *
 	 * @author 	Jacob Groß
 	 * @date   	2015-07-07
@@ -229,11 +226,11 @@
 			}
 
 			if (original) original()
-		}.bind(this)
+		}
 	}
 
 	// start
 	new StopAutoplay()
 
-	console.log('loaded')
-}(window);
+	console.info('loaded')
+}(window));

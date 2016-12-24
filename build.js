@@ -2,7 +2,7 @@
 var shell = require('shelljs'),
 	zipdir = require('zip-dir');
 
-!function () {
+(function () {
 	'use strict'
 
 	var Build = function () {
@@ -29,11 +29,6 @@ var shell = require('shelljs'),
 		shell.cp('src/*.html', 'dist')
 	}
 
-	/** use strict is faster than w/o */
-	Build.prototype.replaceJS = function () {
-		//shell.sed('-i', '"use strict";', '', 'dist/inject.min.js')
-	}
-
 	Build.prototype.replaceJSON = function () {
 		//shell.sed('-i', 'inject.js', 'inject.min.js', 'dist/manifest.json')
 	}
@@ -46,4 +41,4 @@ var shell = require('shelljs'),
 	}
 
 	new Build()
-}()
+}());
