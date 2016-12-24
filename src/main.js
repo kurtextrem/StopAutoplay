@@ -1,16 +1,15 @@
 (function (window) {
 	'use strict'
 
+	/** @version 4.0.4 **/
 	var document = window.document,
 		extended = true
 
 	/**
-	 * Non-Extended: When a tab is opened as background tab for the first time, the video gets loaded when the tab gets focused
-	 * @type {boolean}
+	 * Non-Extended: When a tab has been opened as background tab for the first time, the video is loaded when the tab receives focus (Chrome native feature)
+	 * @type 	{boolean}
 	 */
 	var focusStop = !extended
-
-	/** @version 4.0.3 **/
 
 	/**
 	 * Issues the pause command on the player element.
@@ -27,15 +26,15 @@
 	}
 
 	/**
-	 * Stops the player, when the tab has focus.
+	 * Stops the player, when the tab has focus or looping is enabled.
 	 *
 	 * @author 	Jacob Groß
 	 * @date   	2015-07-29
 	 * @param  	{Object}   	player
 	 */
 	function stopAutoplay(player) {
-		console.log('stopAutoplay', player, focusStop)
-		if (!document.hasFocus() || focusStop || !player.loop) {
+		console.log('stopAutoplay', !player.loop, !document.hasFocus(), focusStop, player)
+		if (!player.loop && !document.hasFocus() || focusStop) {
 			focusStop = false
 			_pause(player)
 		}
@@ -119,7 +118,7 @@
 			// console.log('timeupdate')
 		})
 		window.addEventListener('focus', function () { // tells me the timestamp I've focused
-			console.log('now')
+			console.info('now')
 		})
 	}
 
@@ -131,7 +130,7 @@
 	 * @param  	{Object}   	player
 	 */
 	function bindPlayer(player) {
-		console.log('binding', player)
+		console.info('binding', player)
 
 		// don't pause while buffering
 		console.log(player.readyState, player.networkState)
@@ -139,7 +138,7 @@
 			stopAutoplay(player)
 		}
 
-		console.log('add debug', addDebugListener.apply(null, [player]))
+		console.info('add debug', addDebugListener.apply(null, [player]))
 
 		/**Main stop function */
 		player.addEventListener('canplaythrough', stopAutoplay.bind(null, player))
@@ -147,7 +146,7 @@
 		/** Stops on watch -> watch navigation */
 		var i = 0
 		player.addEventListener('playing', function playing() {
-			console.log('stop playing')
+			console.log('stop on playing event')
 
 			stopAutoplay(player)
 			if (++i === 2)
@@ -155,7 +154,7 @@
 		})
 
 		player.addEventListener('loadeddata', function () {
-			console.log('reset counter')
+			console.log('loadeddata -> reset counter')
 
 			i = 0 // reset; watch -> watch navigation
 		})
@@ -166,7 +165,7 @@
 	}
 
 	/**
-	 * The constructor, binds and initializes vars.
+	 * The constructor binds and initializes vars.
 	 *
 	 * @author 	Jacob Groß
 	 * @date   	2015-07-07
@@ -233,5 +232,5 @@
 	// start
 	new StopAutoplay()
 
-	console.log('loaded')
+	console.info('loaded')
 }(window));
