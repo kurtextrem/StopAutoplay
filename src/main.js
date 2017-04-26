@@ -1,7 +1,7 @@
 (function (window) {
 	'use strict'
 
-	/** @version 4.0.4 **/
+	/** @version 4.0.5 **/
 	var document = window.document,
 		extended = true
 

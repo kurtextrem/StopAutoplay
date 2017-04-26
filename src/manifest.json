@@ -1,6 +1,6 @@
 {
 	"name": "Stop Autoplay for Youtube\u2122 Extended",
-	"version": "4.0.4",
+	"version": "4.0.5",
 	"manifest_version": 2,
 
 	"description": "Stops autoplay on YouTube\u2122. Extended: Starts the video when you focus the tab. Don't like? Use the version without 'Extended'.",
