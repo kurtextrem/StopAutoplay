@@ -33,9 +33,9 @@
 	 * @param  	{Object}   	player
 	 */
 	function stopAutoplay(player) {
-		console.log('stopAutoplay', !player.loop, !document.hasFocus(), focusStop, player, document.location.search.indexOf('list=') === -1)
+		console.log('stopAutoplay', !player.loop, document.location.search.indexOf('list=') === -1, !document.hasFocus(), focusStop, player)
 		if (!player.loop && document.location.search.indexOf('list=') === -1 && !document.hasFocus() || focusStop) {
-			focusStop = false
+			focusStop = extended ? false : true
 			_pause(player)
 		}
 	}
