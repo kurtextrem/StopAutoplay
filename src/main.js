@@ -1,7 +1,7 @@
 (function (window) {
 	'use strict'
 
-	/** @version 4.0.4 **/
+	/** @version 4.0.5 **/
 	var document = window.document,
 		extended = false
 
@@ -34,7 +34,7 @@
 	 */
 	function stopAutoplay(player) {
 		console.log('stopAutoplay', !player.loop, !document.hasFocus(), focusStop, player)
-		if (!player.loop && !document.hasFocus() || focusStop) {
+		if (!player.loop && document.location.search.indexOf('list=') === -1 && !document.hasFocus() || focusStop) {
 			focusStop = false
 			_pause(player)
 		}
@@ -175,6 +175,8 @@
 		this.bindGeneral()
 	}
 
+	var proto = StopAutoplay.prototype
+
 	/**
 	 * Installs an observer which waits for video elements.
 	 *
@@ -182,7 +184,7 @@
 	 * @date   	2016-01-17
 	 * @return  	{Object}   	player 		Player DOM Node
 	 */
-	StopAutoplay.prototype.waitForPlayer = function () {
+	proto.waitForPlayer = function () {
 		var observer = new MutationObserver(function (mutations) {
 			for (var i = 0; i < mutations.length; i++) {
 				var mutation = mutations[i].addedNodes
@@ -205,7 +207,7 @@
 	 * @author 	Jacob Groß
 	 * @date   	2015-08-25
 	 */
-	StopAutoplay.prototype.bindGeneral = function () {
+	proto.bindGeneral = function () {
 		// safety, if there is any other extension for example.
 		var original = window.onYouTubePlayerReady
 
