@@ -1,7 +1,7 @@
 (function (window) {
 	'use strict'
 
-	/** @version 4.0.5 **/
+	/** @version 4.0.6 **/
 	var document = window.document,
 		extended = false
 
@@ -9,7 +9,8 @@
 	 * Non-Extended: When a tab has been opened as background tab for the first time, the video is loaded when the tab receives focus (Chrome native feature)
 	 * @type 	{boolean}
 	 */
-	var focusStop = !extended
+	var focusStop = !extended,
+		seeked = false
 
 	/**
 	 * Issues the pause command on the player element.
@@ -26,7 +27,7 @@
 	}
 
 	/**
-	 * Stops the player, when the tab has focus or looping is enabled.
+	 * Stops the player, when user didn't seek, the tab does not have focus, looping is disabled and it isn't a playlist page.
 	 *
 	 * @author 	Jacob Groß
 	 * @date   	2015-07-29
@@ -34,10 +35,20 @@
 	 */
 	function stopAutoplay(player) {
 		console.log('stopAutoplay', !player.loop, document.location.search.indexOf('list=') === -1, !document.hasFocus(), focusStop, player)
-		if (!player.loop && document.location.search.indexOf('list=') === -1 && !document.hasFocus() || focusStop) {
+		if (seeked) {
+			console.log('stopAutoplay seeked')
+			seeked = false
+			return false
+		}
+
+		if (!player.loop && document.location.search.indexOf('list=') === -1 // we don't want to stop looping videos or playlists
+			&& !document.hasFocus() || focusStop) { // is video in backkground - or is this non-extended (= we should always pause)?
 			focusStop = extended ? false : true
 			_pause(player)
+			return true
 		}
+
+		return false
 	}
 
 	/**
@@ -100,6 +111,7 @@
 			console.log('playing')
 		})
 		player.addEventListener('play', function () {
+			console.log(player.readyState, player.networkState)
 			console.log('play')
 		})
 		player.addEventListener('waiting', function () {
@@ -111,7 +123,7 @@
 		player.addEventListener('seeking', function () {
 			console.log('seeking')
 		})
-		player.addEventListener('seeked', function () {
+		player.addEventListener('seeked', function () { // user seeked forward / backward
 			console.log('seeked')
 		})
 		player.addEventListener('timeupdate', function () {
@@ -162,6 +174,10 @@
 		/** Handler for the "Extended" version. */
 		if (extended)
 			window.addEventListener('focus', handleVisibilityChange.bind(null, player))
+		else { /** Non-Extended shouldn't stop when seeking / clicking play for the first time */
+			player.addEventListener('seeked', function() { seeked = true })
+			player.addEventListener('play', function() { if (player.readyState > 1) seeked = true })
+		}
 	}
 
 	/**
