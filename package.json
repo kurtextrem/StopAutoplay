@@ -1,8 +1,8 @@
 {
 	"dependencies": {
-		"rimraf": "^2.5.4",
-		"shelljs": "^0.7.5",
-		"uglify-js": "^2.7.5",
+		"rimraf": "^2.6.1",
+		"shelljs": "^0.7.8",
+		"uglify-es": "^3.0.23",
 		"zip-dir": "^1.0.2",
 		"json-minify": "^1.0.0"
 	},

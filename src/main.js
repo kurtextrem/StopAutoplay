@@ -17,7 +17,7 @@
 	 *
 	 * @author 	Jacob Groß
 	 * @date   	2015-07-07
-	 * @param  	{Object}   	player
+	 * @param  	{HTMLVideoElement} player
 	 */
 	function _pause(player) {
 		console.log('pause', player)
@@ -30,7 +30,7 @@
 	 *
 	 * @author 	Jacob Groß
 	 * @date   	2015-07-29
-	 * @param  	{Object}   	player
+	 * @param  	{HTMLVideoElement} player
 	 */
 	function stopAutoplay(player) {
 		console.log('stopAutoplay', !player.loop, document.location.search.indexOf('list=') === -1, !document.hasFocus(), focusStop, player)
@@ -43,7 +43,7 @@
 		if (
 			(!player.loop &&
 			document.location.search.indexOf('list=') === -1 && // we don't want to stop looping videos or playlists
-				!document.hasFocus()) || // is video in backkground...
+				!document.hasFocus()) || // is video in background...
 			focusStop // ...or is this non-extended (= we should always pause)?
 		) {
 			focusStop = !extended
@@ -59,7 +59,7 @@
 	 *
 	 * @author 	Jacob Groß
 	 * @date   	2015-07-07
-	 * @param  	{Object}   	player
+	 * @param  	{HTMLVideoElement} player
 	 */
 	function _play(player) {
 		console.log('play', player)
@@ -72,7 +72,7 @@
 	 *
 	 * @author 	Jacob Groß
 	 * @date   	2015-07-29
-	 * @param  	{Object}   	player
+	 * @param  	{HTMLVideoElement} player
 	 */
 	function handleVisibilityChange(player) {
 		console.log('handleVisibilityChange', player, player.readyState)
@@ -87,7 +87,7 @@
 	 *
 	 * @author 	Jacob Groß
 	 * @date   	2016-01-17
-	 * @param  	{Object}   	player
+	 * @param  	{HTMLVideoElement} player
 	 */
 	function addDebugListener(player) {
 		const add = player.addEventListener
@@ -147,7 +147,7 @@
 	 *
 	 * @author 	Jacob Groß
 	 * @date   	2016-03-16
-	 * @param  	{Object}   	player
+	 * @param  	{HTMLVideoElement} player
 	 */
 	function bindPlayer(player) {
 		console.info('binding', player)
@@ -192,26 +192,12 @@
 	}
 
 	/**
-	 * The constructor binds and initializes vars.
-	 *
-	 * @author 	Jacob Groß
-	 * @date   	2015-07-07
-	 */
-	function StopAutoplay() {
-		this.waitForPlayer()
-		this.bindGeneral()
-	}
-
-	const proto = StopAutoplay.prototype
-
-	/**
 	 * Installs an observer which waits for video elements.
 	 *
 	 * @author 	Jacob Groß
 	 * @date   	2016-01-17
-	 * @return  {Object}   	player 		Player DOM Node
 	 */
-	proto.waitForPlayer = function waitForPlayer() {
+	function waitForPlayer() {
 		const observer = new MutationObserver(function(mutations) {
 			for (let i = 0; i < mutations.length; ++i) {
 				const mutation = mutations[i].addedNodes
@@ -220,7 +206,8 @@
 					console.log('mutation', mutation[x])
 
 					observer.disconnect() // waiting is over
-					return bindPlayer(mutation[x])
+					bindPlayer(mutation[x])
+					return
 				}
 			}
 		})
@@ -233,7 +220,7 @@
 	 * @author 	Jacob Groß
 	 * @date   	2015-08-25
 	 */
-	proto.bindGeneral = function bindGeneral() {
+	function bindGeneral() {
 		// safety, if there is any other extension for example.
 		const original = window.onYouTubePlayerReady
 
@@ -259,7 +246,8 @@
 	}
 
 	// start
-	new StopAutoplay()
+	waitForPlayer()
+	bindGeneral()
 
-	console.info('loaded')
+	console.info('started')
 })(window)
