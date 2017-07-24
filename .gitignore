@@ -219,3 +219,4 @@ pip-log.txt
 .mr.developer.cfg
 dist.zip
 src/inject_slowpattern.js
+shrinkwrap.yaml
