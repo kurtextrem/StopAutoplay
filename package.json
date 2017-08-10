@@ -2,7 +2,7 @@
 	"dependencies": {
 		"rimraf": "^2.6.1",
 		"shelljs": "^0.7.8",
-		"uglify-es": "^3.0.23",
+		"uglify-es": "^3.0.27",
 		"zip-dir": "^1.0.2",
 		"json-minify": "^1.0.0"
 	},
