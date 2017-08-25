@@ -5,7 +5,7 @@
  * @author 	Jacob Groß
  * @date   	2016-03-01
  */
-(function inject(document) {
+;(function inject(document) {
 	'use strict'
 
 	let s = document.createElement('script')
@@ -13,7 +13,7 @@
 	// s.async = true // it's async by default
 	s.onload = function onload() {
 		this.parentNode.removeChild(this)
-		s = undefined
+		s = null // GC
 	}
 	document.documentElement.appendChild(s)
 })(window.document)

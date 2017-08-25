@@ -90,46 +90,45 @@
 	 * @param  	{HTMLVideoElement} player
 	 */
 	function addDebugListener(player) {
-		const add = player.addEventListener
-		add('canplay', function() {
+		player.addEventListener('canplay', function() {
 			console.log('canplay')
 		})
-		add('canplaythrough', function() {
+		player.addEventListener('canplaythrough', function() {
 			console.log('canplaythrough')
 		})
-		add('durationchange', function() {
+		player.addEventListener('durationchange', function() {
 			console.log('durationchange')
 		})
-		add('loadeddata', function() {
+		player.addEventListener('loadeddata', function() {
 			console.log('loadeddata')
 		})
-		add('loadedmetadata', function() {
+		player.addEventListener('loadedmetadata', function() {
 			console.log('loadedmetadata')
 		})
-		add('loadstart', function() {
+		player.addEventListener('loadstart', function() {
 			console.log('loadstart')
 		})
-		add('playing', function() {
+		player.addEventListener('playing', function() {
 			console.log('playing')
 		})
-		add('play', function() {
+		player.addEventListener('play', function() {
 			console.log(player.readyState, player.networkState)
 			console.log('play')
 		})
-		add('waiting', function() {
+		player.addEventListener('waiting', function() {
 			console.log('waiting')
 		})
-		add('stalled', function() {
+		player.addEventListener('stalled', function() {
 			// console.log('stalled')
 		})
-		add('seeking', function() {
+		player.addEventListener('seeking', function() {
 			console.log('seeking')
 		})
-		add('seeked', function() {
+		player.addEventListener('seeked', function() {
 			// user seeked forward / backward
 			console.log('seeked')
 		})
-		add('timeupdate', function() {
+		player.addEventListener('timeupdate', function() {
 			// console.log('timeupdate')
 		})
 		window.addEventListener('focus', function() {
@@ -183,6 +182,10 @@
 		else {
 			/** Non-Extended shouldn't stop when seeking / clicking play for the first time */
 			player.addEventListener('seeked', function() {
+				seeked = true
+			})
+			/** Don't pause when slow internet speed */
+			player.addEventListener('waiting', function() {
 				seeked = true
 			})
 			player.addEventListener('play', function() {
