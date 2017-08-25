@@ -1,6 +1,6 @@
 {
 	"name": "Stop Autoplay for Youtube\u2122",
-	"version": "4.0.6.1",
+	"version": "4.0.6.2",
 	"manifest_version": 2,
 
 	"description": "Eases your YouTube\u2122 experience through stopping the autoplay. This version doesn't automatically start Videos.",
@@ -10,7 +10,7 @@
 		"48": "icon48.png"
 	},
 
-	"author": "Jacob Groß (kurtextrem)",
+	"author": "Jacob „kurtextrem\" Groß",
 	"content_scripts": [{
 		"matches": ["http://www.youtube.com/*", "http://youtube.com/*", "https://www.youtube.com/*", "https://youtube.com/*"],
 		"js": ["inject.js"],

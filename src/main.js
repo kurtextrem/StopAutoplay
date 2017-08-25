@@ -1,4 +1,4 @@
-(function(window) {
+;(function StopAutoplay(window) {
 	'use strict'
 
 	/** @version 4.0.6 **/
@@ -72,13 +72,13 @@
 	 *
 	 * @author 	Jacob Groß
 	 * @date   	2015-07-29
-	 * @param  	{HTMLVideoElement} player
+	 * @param  	{Event} e
 	 */
-	function handleVisibilityChange(player) {
-		console.log('handleVisibilityChange', player, player.readyState)
-		// if (player.readyState < 1) return; // bail out, if event triggered too early
-		window.setTimeout(function timeout() {
-			if (!document.hidden) _play(player)
+	function handleVisibilityChange(e) {
+		console.log('handleVisibilityChange', this, this.readyState)
+		// if (this.readyState < 1) return; // bail out, if event triggered too early
+		window.setTimeout(() => {
+			if (!document.hidden) _play(this)
 		}, 60)
 	}
 
@@ -136,7 +136,7 @@
 			// tells me the timestamp I've focused
 			console.info('focus now')
 		})
-		window.addEventListener('visibilitychange', function() {
+		document.addEventListener('visibilitychange', function() {
 			// tells me the timestamp I've focused
 			console.info('visibilitychange now')
 		})
@@ -164,7 +164,7 @@
 		player.addEventListener('canplaythrough', stopAutoplay.bind(null, player))
 
 		/** Stops on watch -> watch navigation */
-		var i = 0
+		let i = 0
 		player.addEventListener('playing', function playing() {
 			console.log('stop on playing event')
 
@@ -179,7 +179,7 @@
 		})
 
 		/** Handler for the "Extended" version. */
-		if (extended) window.addEventListener('focus', handleVisibilityChange.bind(null, player))
+		if (extended) window.addEventListener('focus', handleVisibilityChange.bind(player))
 		else {
 			/** Non-Extended shouldn't stop when seeking / clicking play for the first time */
 			player.addEventListener('seeked', function() {
@@ -200,8 +200,8 @@
 	function waitForPlayer() {
 		const observer = new MutationObserver(function(mutations) {
 			for (let i = 0; i < mutations.length; ++i) {
-				const mutation = mutations[i].addedNodes
-				for (let x = 0; x < mutation.length; ++x) {
+				var mutation = mutations[i].addedNodes
+				for (var x = 0; x < mutation.length; ++x) {
 					if (mutation[x].nodeName !== 'VIDEO' && mutation[x].nodeName !== 'OBJECT') continue
 					console.log('mutation', mutation[x])
 
