@@ -1,6 +1,6 @@
 {
 	"name": "Stop Autoplay for Youtube\u2122 Extended",
-	"version": "4.0.6",
+	"version": "4.0.6.2",
 	"manifest_version": 2,
 
 	"description": "Stops autoplay on YouTube\u2122. Extended: Starts the video when you focus the tab. Don't like? Use the version without 'Extended'.",
@@ -10,7 +10,7 @@
 		"48": "icon48.png"
 	},
 
-	"author": "Jacob Groß (kurtextrem)",
+	"author": "Jacob „kurtextrem\" Groß",
 	"content_scripts": [{
 		"matches": ["http://www.youtube.com/*", "http://youtube.com/*", "https://www.youtube.com/*", "https://youtube.com/*"],
 		"js": ["inject.js"],
