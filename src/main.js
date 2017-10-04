@@ -21,7 +21,8 @@
 	 */
 	function _pause(player) {
 		console.log('pause', player)
-		if (player.pause) return player.pause()
+
+		if (player.pause !== undefined) return player.pause()
 		player.pauseVideo()
 	}
 
@@ -63,7 +64,8 @@
 	 */
 	function _play(player) {
 		console.log('play', player)
-		if (player.play) return player.play()
+
+		if (player.play !== undefined) return player.play() // may return a Promise
 		player.playVideo()
 	}
 
@@ -160,7 +162,7 @@
 		console.info('add debug', addDebugListener(player))
 
 		/** Main stop function */
-		player.addEventListener('canplaythrough', stopAutoplay.bind(null, player))
+		player.addEventListener('canplaythrough', stopAutoplay.bind(undefined, player))
 
 		/** Stops on watch -> watch navigation */
 		let i = 0
