@@ -15,9 +15,7 @@
 	/**
 	 * Issues the pause command on the player element.
 	 *
-	 * @author 	Jacob Groß
-	 * @date   	2015-07-07
-	 * @param  	{HTMLVideoElement} player
+	 * @param {HTMLVideoElement} player
 	 */
 	function _pause(player) {
 		console.log('pause', player)
@@ -29,9 +27,7 @@
 	/**
 	 * Stops the player, when user didn't seek, the tab does not have focus, looping is disabled and it isn't a playlist page.
 	 *
-	 * @author 	Jacob Groß
-	 * @date   	2015-07-29
-	 * @param  	{HTMLVideoElement} player
+	 * @param {HTMLVideoElement} player
 	 */
 	function stopAutoplay(player) {
 		console.log('stopAutoplay', !player.loop, document.location.search.indexOf('list=') === -1, !document.hasFocus(), focusStop, player)
@@ -58,9 +54,7 @@
 	/**
 	 * Issues the play command on the player element.
 	 *
-	 * @author 	Jacob Groß
-	 * @date   	2015-07-07
-	 * @param  	{HTMLVideoElement} player
+	 * @param {HTMLVideoElement} player
 	 */
 	function _play(player) {
 		console.log('play', player)
@@ -70,26 +64,29 @@
 	}
 
 	/**
+	 * Plays a video when the tab is not hidden.
+	 *
+	 * @param {HTMLVideoElement} player
+	 */
+	function _playIfNotHidden(player) {
+		if (!document.hidden) _play(player)
+	}
+
+	/**
 	 * Event handler when the tab becomes visible.
 	 *
-	 * @author 	Jacob Groß
-	 * @date   	2015-07-29
-	 * @param  	{Event} e
+	 * @param {HTMLVideoElement} player
 	 */
-	function handleVisibilityChange(e) {
-		console.log('handleVisibilityChange', this, this.readyState)
-		// if (this.readyState < 1) return; // bail out, if event triggered too early
-		window.setTimeout(() => {
-			if (!document.hidden) _play(this)
-		}, 60)
+	function handleVisibilityChange(player) {
+		console.log('handleVisibilityChange', player, player.readyState)
+		// if (player.readyState < 1) return; // bail out, if event triggered too early
+		window.setTimeout(_playIfNotHidden.bind(undefined, player), 60)
 	}
 
 	/**
 	 * Adds listeners for debugging purposes.
 	 *
-	 * @author 	Jacob Groß
-	 * @date   	2016-01-17
-	 * @param  	{HTMLVideoElement} player
+	 * @param {HTMLVideoElement} player
 	 */
 	function addDebugListener(player) {
 		player.addEventListener('canplay', function() {
@@ -146,9 +143,7 @@
 	/**
 	 * Binds player specific events.
 	 *
-	 * @author 	Jacob Groß
-	 * @date   	2016-03-16
-	 * @param  	{HTMLVideoElement} player
+	 * @param {HTMLVideoElement} player
 	 */
 	function bindPlayer(player) {
 		console.info('binding', player)
@@ -180,16 +175,15 @@
 		})
 
 		/** Handler for the "Extended" version. */
-		if (extended) window.addEventListener('focus', handleVisibilityChange.bind(player))
+		if (extended) window.addEventListener('focus', handleVisibilityChange.bind(undefined, player))
 		else {
 			/** Non-Extended shouldn't stop when seeking / clicking play for the first time */
-			player.addEventListener('seeked', function() {
+			const seekedTrue = function() {
 				seeked = true
-			})
+			}
+			player.addEventListener('seeked', seekedTrue)
 			/** Don't pause when slow internet speed */
-			player.addEventListener('waiting', function() {
-				seeked = true
-			})
+			player.addEventListener('waiting', seekedTrue)
 			player.addEventListener('play', function() {
 				if (player.readyState > 1) seeked = true
 			})
@@ -198,9 +192,6 @@
 
 	/**
 	 * Installs an observer which waits for video elements.
-	 *
-	 * @author 	Jacob Groß
-	 * @date   	2016-01-17
 	 */
 	function waitForPlayer() {
 		const observer = new MutationObserver(function(mutations) {
@@ -221,21 +212,16 @@
 
 	/**
 	 * Binds non /watch / channel specific event handlers.
-	 *
-	 * @author 	Jacob Groß
-	 * @date   	2015-08-25
 	 */
 	function bindGeneral() {
 		// safety, if there is any other extension for example.
-		const original = window.onYouTubePlayerReady
+		const original = window.onYouTubePlayerReady // onYoutubeIframeAPIReady
 
 		/**
 		 * Stops videos on channels.
 		 * Only fired once when a player is ready (e.g. doesn't fire on AJAX navigation /watch -> /watch)
 		 *
-		 * @author 	Jacob Groß
-		 * @date   	2016-03-22
-		 * @param 	{Object}    	player 		The Youtube Player API Object
+		 * @param {Object} player The Youtube Player API Object
 		 */
 		window.onYouTubePlayerReady = function onYouTubePlayerReady(player) {
 			console.log('player ready', player, player.getPlayerState(), player.getCurrentTime())
@@ -246,7 +232,7 @@
 				console.log(player.getCurrentTime())
 			}
 
-			if (original) original()
+			if (original !== undefined) original()
 		}
 	}
 
