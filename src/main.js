@@ -1,7 +1,7 @@
 ;(function StopAutoplay(window) {
 	'use strict'
 
-	/** @version 4.0.6 **/
+	/** @version 4.0.7 **/
 	const document = window.document,
 		extended = true
 
@@ -140,12 +140,17 @@
 		})
 	}
 
+	const boundPlayers = new WeakSet()
+
 	/**
 	 * Binds player specific events.
 	 *
 	 * @param {HTMLVideoElement} player
 	 */
 	function bindPlayer(player) {
+		if (boundPlayers.has(player)) return
+		boundPlayers.add(player)
+
 		console.info('binding', player)
 
 		// don't pause while buffering
@@ -228,8 +233,8 @@
 
 			if (player.getPlayerState() !== 3) {
 				// don't pause too early
-				stopAutoplay(player)
 				console.log(player.getCurrentTime())
+				bindPlayer(document.getElementsByTagName('video')[0])
 			}
 
 			if (original !== undefined) original()
@@ -237,9 +242,9 @@
 	}
 
 	// start
-	let video = document.querySelector('video')
-	if (video !== null) {
-		bindPlayer(video)
+	let video = document.getElementsByTagName('video')
+	if (video.length !== 0) {
+		bindPlayer(video[0])
 		video = undefined
 	}	else waitForPlayer()
 
