@@ -18,7 +18,7 @@
 	 * @param {HTMLVideoElement} player
 	 */
 	function _pause(player) {
-		console.log('pause', player)
+		console.log('pause', player, player.getCurrentTime())
 
 		if (player.pause !== undefined) return player.pause()
 		player.pauseVideo()
@@ -34,7 +34,7 @@
 		if (seeked) {
 			console.log('stopAutoplay seeked')
 			seeked = false
-			return false
+			return seeked // false
 		}
 
 		if (
@@ -237,7 +237,12 @@
 	}
 
 	// start
-	waitForPlayer()
+	let video = document.querySelector('video')
+	if (video !== null) {
+		bindPlayer(video)
+		video = undefined
+	}	else waitForPlayer()
+
 	bindGeneral()
 
 	console.info('started')
