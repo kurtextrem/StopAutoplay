@@ -1,7 +1,7 @@
 ;(function StopAutoplay(window) {
 	'use strict'
 
-	/** @version 4.0.7 **/
+	/** @version 4.1.0 **/
 	const document = window.document,
 		extended = true
 
@@ -9,7 +9,7 @@
 	 * Non-Extended: When a tab has been opened as background tab for the first time, the video is loaded when the tab receives focus (Chrome native feature)
 	 * @type {Boolean}
 	 */
-	let focusStop = !extended,
+	let focusStop = false,
 		seeked = false
 
 	/**
@@ -38,12 +38,10 @@
 		}
 
 		if (
-			(!player.loop &&
-			document.location.search.indexOf('list=') === -1 && // we don't want to stop looping videos or playlists
-				!document.hasFocus()) || // is video in background...
-			focusStop // ...or is this non-extended (= we should always pause)?
+			!player.loop && document.location.search.indexOf('list=') === -1 // we don't want to stop looping videos or playlists
+			&& !document.hasFocus() // is video in background?
+			|| focusStop
 		) {
-			focusStop = !extended
 			_pause(player)
 			return true
 		}
@@ -182,16 +180,25 @@
 		/** Handler for the "Extended" version. */
 		if (extended) window.addEventListener('focus', handleVisibilityChange.bind(undefined, player))
 		else {
-			/** Non-Extended shouldn't stop when seeking / clicking play for the first time */
-			const seekedTrue = function() {
-				seeked = true
-			}
-			player.addEventListener('seeked', seekedTrue)
-			/** Don't pause when slow internet speed */
-			player.addEventListener('waiting', seekedTrue)
-			player.addEventListener('play', function() {
+			/** Shouldn't stop when seeking */
+			const seekedTrue = () => {
 				if (player.readyState > 1) seeked = true
-			})
+			}
+			const onfocus = function() {
+				focusStop = true
+				player.addEventListener('playing', () => {
+					focusStop = false
+				}, { once: true })
+
+				/** Shouldn't stop when clicking play for the first time */
+				player.addEventListener('play', seekedTrue, { once: true })
+				player.addEventListener('seeked', seekedTrue)
+				/** Don't pause when slow internet speed */
+				player.addEventListener('waiting', seekedTrue)
+			}
+
+			/** When a tab has been opened as background tab for the first time, the video is loaded when the tab receives focus (Chrome native feature) */
+			document.hasFocus() ? onfocus() : window.addEventListener('focus', onfocus, { once: true })
 		}
 	}
 
@@ -245,7 +252,7 @@
 	let video = document.getElementsByTagName('video')
 	if (video.length !== 0) {
 		bindPlayer(video[0])
-		video = undefined
+		video = null // GC
 	}	else waitForPlayer()
 
 	bindGeneral()
