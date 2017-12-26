@@ -40,7 +40,7 @@
 		if (
 			!player.loop && document.location.search.indexOf('list=') === -1 // we don't want to stop looping videos or playlists
 			&& !document.hasFocus() // is video in background?
-			|| focusStop
+			|| focusStop // bg tab override
 		) {
 			_pause(player)
 			return true
