@@ -1,7 +1,7 @@
 ;(function StopAutoplay(window) {
 	'use strict'
 
-	/** @version 4.0.6 **/
+	/** @version 4.1.0 **/
 	const document = window.document,
 		extended = false
 
@@ -9,44 +9,39 @@
 	 * Non-Extended: When a tab has been opened as background tab for the first time, the video is loaded when the tab receives focus (Chrome native feature)
 	 * @type {Boolean}
 	 */
-	let focusStop = !extended,
+	let focusStop = false,
 		seeked = false
 
 	/**
 	 * Issues the pause command on the player element.
 	 *
-	 * @author 	Jacob Groß
-	 * @date   	2015-07-07
-	 * @param  	{HTMLVideoElement} player
+	 * @param {HTMLVideoElement} player
 	 */
 	function _pause(player) {
-		console.log('pause', player)
-		if (player.pause) return player.pause()
+		console.log('pause', player, player.getCurrentTime())
+
+		if (player.pause !== undefined) return player.pause()
 		player.pauseVideo()
 	}
 
 	/**
 	 * Stops the player, when user didn't seek, the tab does not have focus, looping is disabled and it isn't a playlist page.
 	 *
-	 * @author 	Jacob Groß
-	 * @date   	2015-07-29
-	 * @param  	{HTMLVideoElement} player
+	 * @param {HTMLVideoElement} player
 	 */
 	function stopAutoplay(player) {
 		console.log('stopAutoplay', !player.loop, document.location.search.indexOf('list=') === -1, !document.hasFocus(), focusStop, player)
 		if (seeked) {
 			console.log('stopAutoplay seeked')
 			seeked = false
-			return false
+			return seeked // false
 		}
 
 		if (
-			(!player.loop &&
-			document.location.search.indexOf('list=') === -1 && // we don't want to stop looping videos or playlists
-				!document.hasFocus()) || // is video in background...
-			focusStop // ...or is this non-extended (= we should always pause)?
+			!player.loop && document.location.search.indexOf('list=') === -1 // we don't want to stop looping videos or playlists
+			&& !document.hasFocus() // is video in background?
+			|| focusStop // bg tab override
 		) {
-			focusStop = !extended
 			_pause(player)
 			return true
 		}
@@ -57,37 +52,39 @@
 	/**
 	 * Issues the play command on the player element.
 	 *
-	 * @author 	Jacob Groß
-	 * @date   	2015-07-07
-	 * @param  	{HTMLVideoElement} player
+	 * @param {HTMLVideoElement} player
 	 */
 	function _play(player) {
 		console.log('play', player)
-		if (player.play) return player.play()
+
+		if (player.play !== undefined) return player.play() // may return a Promise
 		player.playVideo()
+	}
+
+	/**
+	 * Plays a video when the tab is not hidden.
+	 *
+	 * @param {HTMLVideoElement} player
+	 */
+	function _playIfNotHidden(player) {
+		if (!document.hidden) _play(player)
 	}
 
 	/**
 	 * Event handler when the tab becomes visible.
 	 *
-	 * @author 	Jacob Groß
-	 * @date   	2015-07-29
-	 * @param  	{Event} e
+	 * @param {HTMLVideoElement} player
 	 */
-	function handleVisibilityChange(e) {
-		console.log('handleVisibilityChange', this, this.readyState)
-		// if (this.readyState < 1) return; // bail out, if event triggered too early
-		window.setTimeout(() => {
-			if (!document.hidden) _play(this)
-		}, 60)
+	function handleVisibilityChange(player) {
+		console.log('handleVisibilityChange', player, player.readyState)
+		// if (player.readyState < 1) return; // bail out, if event triggered too early
+		window.setTimeout(_playIfNotHidden.bind(undefined, player), 60)
 	}
 
 	/**
 	 * Adds listeners for debugging purposes.
 	 *
-	 * @author 	Jacob Groß
-	 * @date   	2016-01-17
-	 * @param  	{HTMLVideoElement} player
+	 * @param {HTMLVideoElement} player
 	 */
 	function addDebugListener(player) {
 		player.addEventListener('canplay', function() {
@@ -141,14 +138,17 @@
 		})
 	}
 
+	const boundPlayers = new WeakSet()
+
 	/**
 	 * Binds player specific events.
 	 *
-	 * @author 	Jacob Groß
-	 * @date   	2016-03-16
-	 * @param  	{HTMLVideoElement} player
+	 * @param {HTMLVideoElement} player
 	 */
 	function bindPlayer(player) {
+		if (boundPlayers.has(player)) return
+		boundPlayers.add(player)
+
 		console.info('binding', player)
 
 		// don't pause while buffering
@@ -160,7 +160,7 @@
 		console.info('add debug', addDebugListener(player))
 
 		/** Main stop function */
-		player.addEventListener('canplaythrough', stopAutoplay.bind(null, player))
+		player.addEventListener('canplaythrough', stopAutoplay.bind(undefined, player))
 
 		/** Stops on watch -> watch navigation */
 		let i = 0
@@ -178,26 +178,32 @@
 		})
 
 		/** Handler for the "Extended" version. */
-		if (extended) window.addEventListener('focus', handleVisibilityChange.bind(player))
+		if (extended) window.addEventListener('focus', handleVisibilityChange.bind(undefined, player))
 		else {
-			/** Non-Extended shouldn't stop when seeking / clicking play for the first time */
-			player.addEventListener('seeked', function() {
-				seeked = true
-			})
-			player.addEventListener('waiting', function() {
-				seeked = true
-			})
-			player.addEventListener('play', function() {
+			/** Shouldn't stop when seeking */
+			const seekedTrue = () => {
 				if (player.readyState > 1) seeked = true
-			})
+			}
+			const onfocus = function() {
+				focusStop = true
+				player.addEventListener('playing', () => {
+					focusStop = false
+				}, { once: true })
+
+				/** Shouldn't stop when clicking play for the first time */
+				player.addEventListener('play', seekedTrue, { once: true })
+				player.addEventListener('seeked', seekedTrue)
+				/** Don't pause when slow internet speed */
+				player.addEventListener('waiting', seekedTrue)
+			}
+
+			/** When a tab has been opened as background tab for the first time, the video is loaded when the tab receives focus (Chrome native feature) */
+			document.hasFocus() ? onfocus() : window.addEventListener('focus', onfocus, { once: true })
 		}
 	}
 
 	/**
 	 * Installs an observer which waits for video elements.
-	 *
-	 * @author 	Jacob Groß
-	 * @date   	2016-01-17
 	 */
 	function waitForPlayer() {
 		const observer = new MutationObserver(function(mutations) {
@@ -218,37 +224,37 @@
 
 	/**
 	 * Binds non /watch / channel specific event handlers.
-	 *
-	 * @author 	Jacob Groß
-	 * @date   	2015-08-25
 	 */
 	function bindGeneral() {
 		// safety, if there is any other extension for example.
-		const original = window.onYouTubePlayerReady
+		const original = window.onYouTubePlayerReady // onYoutubeIframeAPIReady
 
 		/**
 		 * Stops videos on channels.
 		 * Only fired once when a player is ready (e.g. doesn't fire on AJAX navigation /watch -> /watch)
 		 *
-		 * @author 	Jacob Groß
-		 * @date   	2016-03-22
-		 * @param 	{Object}    	player 		The Youtube Player API Object
+		 * @param {Object} player The Youtube Player API Object
 		 */
 		window.onYouTubePlayerReady = function onYouTubePlayerReady(player) {
 			console.log('player ready', player, player.getPlayerState(), player.getCurrentTime())
 
 			if (player.getPlayerState() !== 3) {
 				// don't pause too early
-				stopAutoplay(player)
 				console.log(player.getCurrentTime())
+				bindPlayer(document.getElementsByTagName('video')[0])
 			}
 
-			if (original) original()
+			if (original !== undefined) original()
 		}
 	}
 
 	// start
-	waitForPlayer()
+	let video = document.getElementsByTagName('video')
+	if (video.length !== 0) {
+		bindPlayer(video[0])
+		video = null // GC
+	}	else waitForPlayer()
+
 	bindGeneral()
 
 	console.info('started')
