@@ -38,9 +38,10 @@
 		}
 
 		if (
-			!player.loop && document.location.search.indexOf('list=') === -1 // we don't want to stop looping videos or playlists
-			&& !document.hasFocus() // is video in background?
-			|| focusStop // bg tab override
+			(!player.loop &&
+			document.location.search.indexOf('list=') === -1 && // we don't want to stop looping videos or playlists
+				!document.hasFocus()) || // is video in background?
+			focusStop // bg tab override
 		) {
 			_pause(player)
 			return true
@@ -57,7 +58,10 @@
 	function _play(player) {
 		console.log('play', player)
 
-		if (player.play !== undefined) return player.play() // may return a Promise
+		if (player.play !== undefined) {
+			const maybePromise = player.play()
+			return maybePromise instanceof Promise ? maybePromise.catch(console.warn) : null
+		}
 		player.playVideo()
 	}
 
@@ -186,9 +190,13 @@
 			}
 			const onfocus = function() {
 				focusStop = true
-				player.addEventListener('playing', () => {
-					focusStop = false
-				}, { once: true })
+				player.addEventListener(
+					'playing',
+					() => {
+						focusStop = false
+					},
+					{ once: true }
+				)
 
 				/** Shouldn't stop when clicking play for the first time */
 				player.addEventListener('play', seekedTrue, { once: true })
@@ -253,7 +261,7 @@
 	if (video.length !== 0) {
 		bindPlayer(video[0])
 		video = null // GC
-	}	else waitForPlayer()
+	} else waitForPlayer()
 
 	bindGeneral()
 
