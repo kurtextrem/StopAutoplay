@@ -21,7 +21,7 @@
 		console.log('pause', player, player.getCurrentTime())
 
 		if (player.pause !== undefined) return player.pause()
-		player.pauseVideo()
+		player.pauseVideo() // Flash API
 	}
 
 	/**
@@ -60,9 +60,9 @@
 
 		if (player.play !== undefined) {
 			const maybePromise = player.play()
-			return maybePromise instanceof Promise ? maybePromise.catch(console.warn) : null
+			return maybePromise instanceof Promise && maybePromise.catch(console.warn)
 		}
-		player.playVideo()
+		player.playVideo() // Flash API
 	}
 
 	/**
