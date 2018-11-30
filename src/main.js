@@ -18,9 +18,12 @@
 	 * @param {HTMLVideoElement} player
 	 */
 	function _pause(player) {
-		console.log('pause', player, player.getCurrentTime())
+		console.log('pause', player, player.currentTime)
 
-		if (player.pause !== undefined) return player.pause()
+		if (player.pause !== undefined) {
+			player.pause()
+			return
+		}
 		player.pauseVideo() // Flash API
 	}
 
@@ -30,10 +33,18 @@
 	 * @param {HTMLVideoElement} player
 	 */
 	function stopAutoplay(player) {
-		console.log('stopAutoplay', !player.loop, document.location.search.indexOf('list=') === -1, !document.hasFocus(), focusStop, player)
+		console.log(
+			'stopAutoplay',
+			!player.loop,
+			document.location.search.indexOf('list=') === -1,
+			document.hidden,
+			focusStop,
+			player
+		)
 		if (seeked) {
 			console.log('stopAutoplay seeked')
 			seeked = false
+
 			return seeked // false
 		}
 
@@ -60,7 +71,8 @@
 
 		if (player.play !== undefined) {
 			const maybePromise = player.play()
-			return maybePromise instanceof Promise && maybePromise.catch(console.warn)
+			if (maybePromise instanceof Promise) maybePromise.catch(console.warn)
+			return
 		}
 		player.playVideo() // Flash API
 	}
@@ -164,7 +176,10 @@
 		console.info('add debug', addDebugListener(player))
 
 		/** Main stop function */
-		player.addEventListener('canplaythrough', stopAutoplay.bind(undefined, player))
+		player.addEventListener(
+			'canplaythrough',
+			stopAutoplay.bind(undefined, player)
+		)
 
 		/** Stops on watch -> watch navigation */
 		let i = 0
@@ -182,7 +197,11 @@
 		})
 
 		/** Handler for the "Extended" version. */
-		if (extended) window.addEventListener('focus', handleVisibilityChange.bind(undefined, player))
+		if (extended)
+			window.addEventListener(
+				'focus',
+				handleVisibilityChange.bind(undefined, player)
+			)
 		else {
 			/** Shouldn't stop when seeking */
 			const seekedTrue = () => {
@@ -206,7 +225,9 @@
 			}
 
 			/** When a tab has been opened as background tab for the first time, the video is loaded when the tab receives focus (Chrome native feature) */
-			document.hasFocus() ? onfocus() : window.addEventListener('focus', onfocus, { once: true })
+			document.hasFocus()
+				? onfocus()
+				: window.addEventListener('focus', onfocus, { once: true })
 		}
 	}
 
@@ -218,11 +239,16 @@
 			for (let i = 0; i < mutations.length; ++i) {
 				var mutation = mutations[i].addedNodes
 				for (var x = 0; x < mutation.length; ++x) {
-					if (mutation[x].nodeName !== 'VIDEO' && mutation[x].nodeName !== 'OBJECT') continue
+					if (
+						mutation[x].nodeName !== 'VIDEO' &&
+						mutation[x].nodeName !== 'OBJECT'
+					)
+						continue
 					console.log('mutation', mutation[x])
 
 					observer.disconnect() // waiting is over
 					bindPlayer(mutation[x])
+
 					return
 				}
 			}
@@ -244,7 +270,12 @@
 		 * @param {Object} player The Youtube Player API Object
 		 */
 		window.onYouTubePlayerReady = function onYouTubePlayerReady(player) {
-			console.log('player ready', player, player.getPlayerState(), player.getCurrentTime())
+			console.log(
+				'player ready',
+				player,
+				player.getPlayerState(),
+				player.getCurrentTime()
+			)
 
 			if (player.getPlayerState() !== 3) {
 				// don't pause too early

@@ -1,0 +1,14 @@
+{
+	"compilerOptions": {
+		"target": "ESNext",
+		"experimentalDecorators": true,
+		"checkJs": true,
+		"forceConsistentCasingInFileNames": true,
+		"allowSyntheticDefaultImports": true,
+		"baseUrl": ".",
+		"paths": {
+			"/*": ["/*"]
+		}
+	},
+	"exclude": ["dist", "node_modules"]
+}
