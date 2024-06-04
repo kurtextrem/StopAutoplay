@@ -1,3 +1,5 @@
+<h1>This is now a native functionality in Chrome. Hence, I've unpublished the extension.</h1>
+
 Stop Autoplay for Youtube™ Extended
 ===================
 
